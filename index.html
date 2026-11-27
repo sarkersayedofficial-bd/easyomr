@@ -120,6 +120,9 @@ header .wrap{padding-left:52px}
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
+ function makeId(){
+  return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,7);
+}
 const state={exam:null,keys:{},results:{},rollSets:{},keyFiles:{},pending:null,lastImage:null,lastScanSet:null,batchFiles:[],batchIndex:0};
 const API_URL='https://generativelanguage.googleapis.com/v1beta/interactions';
 const GEMINI_MODEL='gemini-3.8-flash';
