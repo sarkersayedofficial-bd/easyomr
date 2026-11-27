@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14532d">
+<title>সহজ OMR স্ক্যানার</title>
+<style>
+:root{--g:#176b45;--bg:#f5f8f5;--card:#fff;--ink:#17231d;--mut:#66766d;--ln:#dfe8e2;--soft:#eaf5ee;--red:#c62828;--warn:#fff4d6}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1612;--card:#16211b;--ink:#e6f0ea;--mut:#93a39a;--ln:#27382e;--soft:#1d2e24;--red:#ff8a80;--warn:#3b3115}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,"Noto Sans Bengali","Hind Siliguri",sans-serif;padding-bottom:calc(60px + env(safe-area-inset-bottom))}
+.hidden{display:none!important}
+header{background:linear-gradient(125deg,#103e2d,#176b45 55%,#28a66c);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 14px 16px;display:flex;gap:12px;align-items:center;border-radius:0 0 22px 22px}
+h1{font-size:20px;margin:0;line-height:1.3}header p{margin:0;font-size:12px;opacity:.85}
+.ic{width:44px;height:44px;border:1px solid #fff6;background:#fff2;color:#fff;border-radius:12px;font-size:22px;cursor:pointer}
+#steps{position:sticky;top:0;z-index:5;display:flex;gap:6px;padding:8px 10px;background:var(--bg)}
+#steps button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:var(--mut);font:inherit;font-size:12px;font-weight:700;padding:4px 2px;cursor:pointer}
+#steps i{width:26px;height:26px;border-radius:50%;border:2px solid var(--ln);display:grid;place-items:center;font-style:normal;font-size:12px;background:var(--card)}
+#steps .on{color:var(--g)}#steps .on i{background:var(--g);border-color:var(--g);color:#fff}
+main{max-width:760px;margin:auto;padding:4px 12px}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:16px;margin:10px 0}
+h2{font-size:18px;margin:0 0 10px;color:var(--g)}h3{font-size:15px;margin:14px 0 6px}
+label{display:block;font-weight:700;font-size:14px;margin:10px 0 5px}
+input:not([type=radio]):not([type=checkbox]):not([type=file]),select{width:100%;min-height:46px;border:1px solid var(--ln);border-radius:12px;padding:9px 12px;font:inherit;background:var(--bg);color:var(--ink)}
+input:focus,select:focus,button:focus-visible{outline:3px solid #23a36a55;outline-offset:1px}
+.help{font-size:13px;color:var(--mut);margin:6px 0}.note{background:var(--warn);border-radius:12px;padding:10px 12px;font-size:14px;font-weight:700;margin:8px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.row>*{flex:1 1 140px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{display:inline-flex;align-items:center;gap:6px;font-weight:500;background:var(--soft);padding:8px 12px;border-radius:11px;margin:4px 6px 4px 0}
+.btn{border:0;border-radius:13px;background:var(--g);color:#fff;font:inherit;font-weight:800;min-height:48px;padding:10px 16px;cursor:pointer}
+.btn.alt{background:var(--soft);color:var(--g);border:1px solid var(--ln)}.btn.red{background:transparent;color:var(--red);border:1px solid var(--red)}.btn.sm{min-height:38px;padding:6px 12px;font-size:14px}.btn:disabled{opacity:.5}
+.pick{display:grid;place-items:center;text-align:center;min-height:54px;border:1.5px dashed var(--g);border-radius:13px;color:var(--g);font-weight:700;margin:0;cursor:pointer}
+.thumbs{display:flex;gap:8px;overflow-x:auto;margin-top:8px}.th{flex:0 0 96px;font-size:11px;color:var(--mut);overflow:hidden}.th img{width:96px;height:96px;object-fit:cover;border-radius:10px;display:block}
+.grid4{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;margin-top:10px}
+.ki{border:1px solid var(--ln);border-radius:12px;padding:8px}.ki b{display:block;font-size:13px}.ki select{min-height:38px;padding:4px 8px}
+.ki.warn{background:var(--warn);border-color:#e0b84a}
+.opts{display:flex;gap:6px;flex-wrap:wrap}.opts label{display:flex;align-items:center;gap:3px;margin:0;font-weight:600}input[type=checkbox]{width:20px;height:20px;accent-color:var(--g)}input[type=radio]{accent-color:var(--g)}
+.big{width:100%;max-height:420px;object-fit:contain;border-radius:12px;background:var(--soft)}
+#setbar{display:flex;gap:8px;overflow-x:auto;padding:4px 0}#setbar button{border:1px solid var(--ln);background:var(--card);color:var(--ink);border-radius:99px;padding:7px 18px;font:inherit;font-weight:800;cursor:pointer}#setbar .on{background:var(--g);color:#fff;border-color:var(--g)}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border-bottom:1px solid var(--ln);padding:8px 6px;text-align:left}th{background:var(--soft)}td .sm{border:0;background:none;font-size:17px;cursor:pointer}.ab{color:var(--red);font-weight:800}
+#bd{position:fixed;inset:0;background:#0a1a12bb;z-index:20}
+#dr{position:fixed;z-index:21;top:0;bottom:0;left:0;width:min(370px,90vw);background:var(--card);overflow:auto;transform:translateX(-105%);transition:transform .22s}#dr.open{transform:none}
+.dh{display:flex;justify-content:space-between;align-items:center;padding:calc(16px + env(safe-area-inset-top)) 16px 14px;background:linear-gradient(125deg,#103e2d,#23a36a);color:#fff}.dh b{font-size:18px}
+.ds{padding:14px 16px;border-bottom:1px solid var(--ln)}.hi{border:1px solid var(--ln);border-radius:13px;padding:10px;margin:8px 0}.hi small{display:block;color:var(--mut)}
+#toast{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:30;max-width:620px;margin:auto;padding:12px 14px;border-radius:13px;background:#1b2b22;color:#fff;font-size:14px;opacity:0;transform:translateY(12px);transition:.2s;pointer-events:none}
+#toast.show{opacity:1;transform:none}#toast.err{background:#a62323}#toast.ok{background:#176b45}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+ <button class="ic" id="menuBtn" aria-label="মেনু খুলুন">☰</button>
+ <div><h1>সহজ OMR স্ক্যানার</h1><p>উত্তরমালা · AI স্ক্যান · ফলাফল · PDF ও Excel</p></div>
+</header>
+<nav id="steps" class="hidden">
+ <button data-s="exam"><i>১</i>পরীক্ষা</button><button data-s="key"><i>২</i>উত্তরমালা</button><button data-s="scan"><i>৩</i>স্ক্যান</button><button data-s="res"><i>৪</i>ফল</button>
+</nav>
+<main>
+ <section id="gate" class="card hidden">
+  <h2>প্রথমে Gemini API Key দিন</h2>
+  <p class="help">প্রত্যেক শিক্ষক নিজের Key দেবেন। Key শুধু এই ব্রাউজারে থাকে, কারও সাথে শেয়ার হয় না। Key পাবেন এখানে: <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com/app/apikey</a> — গুগল দিয়ে লগইন করে Create API key চাপুন, কপি করে নিচে বসান।</p>
+  <input id="gk" type="password" autocomplete="off" placeholder="API Key এখানে বসান">
+  <div class="row"><button class="btn" id="gs">Key সংরক্ষণ করুন</button></div>
+ </section>
+
+ <div id="app" class="hidden">
+  <div id="setbar" class="hidden"></div>
+
+  <section data-p="exam" class="card">
+   <h2>নতুন পরীক্ষা</h2><p id="cur" class="help"></p>
+   <div class="two"><div><label for="en">পরীক্ষার নাম</label><input id="en" placeholder="অর্ধবার্ষিক পরীক্ষা"></div><div><label for="ec">শ্রেণি</label><input id="ec" placeholder="সপ্তম"></div>
+   <div><label for="es">বিষয়</label><input id="es" placeholder="বিজ্ঞান"></div><div><label for="ecount">শেষ রোল</label><input id="ecount" type="number" inputmode="numeric" min="1" max="500" placeholder="৪০"></div></div>
+   <label>প্রশ্নের সেট আছে?</label>
+   <label class="opt"><input type="radio" name="sm" value="n" checked>সেট নেই</label><label class="opt"><input type="radio" name="sm" value="y">সেট আছে</label>
+   <div id="setsBox" class="hidden"><input id="esets" placeholder="সেটের নাম কমা দিয়ে লিখুন: A, B, C"></div>
+   <label>একই প্রশ্নে দুইটি দাগ দিলে</label>
+   <label class="opt"><input type="radio" name="dr" value="wrong" checked>ভুল ধরা হবে</label><label class="opt"><input type="radio" name="dr" value="one">একটি সঠিক থাকলে সঠিক</label>
+   <div class="row"><button class="btn" id="mkExam">পরীক্ষা সংরক্ষণ করুন</button></div>
+  </section>
+
+  <section data-p="key" class="card hidden">
+   <h2 id="kt"></h2>
+   <label for="qn">মোট প্রশ্ন সংখ্যা</label><input id="qn" type="number" inputmode="numeric" min="1" max="300" placeholder="৩০">
+   <div class="two" style="margin-top:10px"><label class="pick">📷 ক্যামেরা<input id="kcam" type="file" accept="image/*" capture="environment" multiple hidden></label><label class="pick">🖼 গ্যালারি / PDF<input id="kgal" type="file" accept="image/*,.pdf" multiple hidden></label></div>
+   <div id="kprev" class="thumbs"></div>
+   <div class="row"><button class="btn" id="kai">AI দিয়ে উত্তর বের করুন</button><button class="btn alt" id="kclr">ফাইল মুছুন</button></div>
+   <p class="help">AI-র উত্তর নিচের ঘরে বসবে। মূল শিটের সাথে মিলিয়ে ভুল থাকলে নিজে ঠিক করুন, অথবা সব নিজেই বাছুন।</p>
+   <div id="kgrid" class="grid4"></div>
+   <div class="row"><button class="btn" id="ksave">যাচাই করে সংরক্ষণ করুন</button></div>
+  </section>
+
+  <section data-p="scan" class="card hidden">
+   <h2 id="st"></h2><p id="sn" class="note hidden"></p>
+   <label for="roll">রোল নম্বর</label><input id="roll" type="number" inputmode="numeric" min="1">
+   <div class="two" style="margin-top:10px"><label class="pick">📷 ক্যামেরা<input id="scam" type="file" accept="image/*" capture="environment" multiple hidden></label><label class="pick">🖼 গ্যালারি<input id="sgal" type="file" accept="image/*" multiple hidden></label></div>
+   <p id="sq" class="help"></p><div id="sprev" class="thumbs"></div>
+   <div class="row"><button class="btn" id="sgo">স্ক্যান করুন</button><button class="btn alt" id="sclr">ছবি মুছুন</button></div>
+   <div id="srev" class="hidden">
+    <h3>AI যা পড়েছে — যাচাই করুন</h3><p class="help">হলুদ ঘরে দাগ নেই বা একাধিক দাগ আছে। ছবির সাথে মিলিয়ে ঠিক করুন।</p>
+    <img id="simg" class="big" alt="OMR ছবি"><div id="sgrid" class="grid4"></div>
+    <div class="row"><button class="btn alt" id="sre">আবার AI দিয়ে পড়ুন</button><button class="btn" id="ssave">ফল সংরক্ষণ করুন</button></div>
+   </div>
+  </section>
+
+  <section data-p="res" class="card hidden">
+   <h2>চূড়ান্ত ফলাফল</h2><div id="rsum"></div>
+   <div class="tw"><table id="rt"></table></div>
+   <label for="ext">নতুন শেষ রোল দিয়ে শিক্ষার্থী বাড়ান</label>
+   <div class="two"><input id="ext" type="number" inputmode="numeric" placeholder="যেমন ৪৫"><button class="btn alt" id="extb">বাড়ান</button></div>
+   <p class="help">আগের কোনো ফল বদলাবে না। নতুন রোল স্ক্যান না হওয়া পর্যন্ত অনুপস্থিত দেখাবে।</p>
+   <div class="row"><button class="btn" id="xl">Excel ডাউনলোড</button><button class="btn alt" id="pdf">PDF / প্রিন্ট</button></div>
+  </section>
+ </div>
+</main>
+
+<div id="bd" class="hidden"></div>
+<aside id="dr" aria-hidden="true">
+ <div class="dh"><b>শিক্ষক মেনু</b><button class="ic" id="dx" aria-label="বন্ধ করুন">×</button></div>
+ <div class="ds">
+  <h3 style="margin-top:0">⚙ সেটিংস</h3>
+  <p class="help" id="ki"></p>
+  <input id="nk" type="password" autocomplete="off" placeholder="নতুন API Key">
+  <div class="row"><button class="btn alt sm" id="sk">Key সংরক্ষণ / পরিবর্তন</button><button class="btn alt sm" id="tk">Key টেস্ট</button><button class="btn red sm" id="dk">Key মুছুন</button></div>
+  <label for="md">AI মডেল</label><input id="md" list="ml"><datalist id="ml"><option value="gemini-3.8-flash"><option value="gemini-3.5-flash-lite"></datalist>
+  <p class="help">কোটা শেষ হলে হালকা (Flash-Lite) মডেল চেষ্টা করুন।</p>
+ </div>
+ <div class="ds">
+  <h3 style="margin-top:0">আগের পরীক্ষা</h3>
+  <input id="hs" type="search" placeholder="নাম, শ্রেণি বা বিষয় খুঁজুন"><div id="hl"></div>
+  <div class="row"><button class="btn alt sm" id="bk">ব্যাকআপ নামান</button><label class="btn alt sm pick" style="border:1px solid var(--ln);margin:0">ব্যাকআপ ফেরান<input id="bi" type="file" accept=".json" hidden></label></div>
+  <p class="help">ব্রাউজারের ডেটা মুছলে সব হারাবে, তাই মাঝে মাঝে ব্যাকআপ নিন। API Key ব্যাকআপে থাকে না।</p>
+ </div>
+</aside>
+<div id="toast" role="status"></div>
+
+<script>
+'use strict';
+const $=i=>document.getElementById(i);
+const KEY='sohoj_omr_gemini_key',MODEL='sohoj_omr_model',HK='sohoj_omr_teacher_exam_history_v1',DEF='gemini-3.8-flash';
+const bn=n=>String(n).replace(/\d/g,d=>'০১২৩৪৫৬৭৮৯'[d]);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:v}catch(_){return d}},set(k,v){try{localStorage.setItem(k,v);return true}catch(_){return false}},del(k){try{localStorage.removeItem(k)}catch(_){}}};
+const apiKey=()=>ls.get(KEY,'');
+const busy=(id,b)=>{$(id).disabled=!!b};
+let S=null;                                   // current exam
+const ui={step:'exam',set:null,kf:{},q:[],pending:null,fresh:0};
+
+let tt;function toast(m,t=''){const e=$('toast');e.textContent=m;e.className='show '+t;clearTimeout(tt);tt=setTimeout(()=>e.className='',4200)}
+
+/* ---------- storage ---------- */
+const hist=()=>{try{const l=JSON.parse(ls.get(HK,'[]'));return Array.isArray(l)?l:[]}catch(_){return[]}};
+function norm(r){const e=r.exam||r,res={};for(const[k,v]of Object.entries(r.results||{}))res[v.roll||k.split('::').pop()]=v;
+ return{id:r.id,name:e.name,cls:e.className||e.cls,subject:e.subject,count:e.count,sets:e.sets||['একক'],rule:e.doubleRule||e.rule||'wrong',keys:r.keys||{},results:res}}
+function save(){if(!S)return;const l=hist(),r={...S,updatedAt:Date.now()},i=l.findIndex(x=>x.id===S.id);i>=0?l[i]=r:l.unshift(r);
+ if(!ls.set(HK,JSON.stringify(l)))toast('ব্রাউজারের স্টোরেজ পূর্ণ। পুরোনো পরীক্ষা মুছুন বা ব্যাকআপ নিন।','err');renderHist()}
+
+/* ---------- Gemini ---------- */
+const OPT={type:'STRING',enum:['A','B','C','D']};
+const SKEY={type:'OBJECT',properties:{answers:{type:'ARRAY',items:{type:'OBJECT',properties:{question:{type:'INTEGER'},answer:OPT},required:['question','answer']}}},required:['answers']};
+const SSCAN={type:'OBJECT',properties:{answers:{type:'ARRAY',items:{type:'OBJECT',properties:{question:{type:'INTEGER'},selected:{type:'ARRAY',items:OPT}},required:['question','selected']}}},required:['answers']};
+async function gem(prompt,imgs,schema){
+ const k=apiKey();if(!k)throw Error('আগে API Key দিন (মেনু → সেটিংস)।');
+ const model=ls.get(MODEL,DEF)||DEF;
+ const body={contents:[{parts:[{text:prompt},...imgs.map(d=>({inline_data:{mime_type:'image/jpeg',data:d}}))]}],generationConfig:{temperature:0,responseMimeType:'application/json',responseSchema:schema}};
+ let r;
+ for(let a=0;a<3;a++){
+  try{r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':k},body:JSON.stringify(body)})}
+  catch(_){throw Error('Gemini-র সাথে সংযোগ হয়নি। ইন্টারনেট দেখুন এবং সাইটটি HTTPS-এ খুলুন।')}
+  if(r.status===429&&a<2){await new Promise(z=>setTimeout(z,2500*(a+1)));continue}break}
+ const d=await r.json().catch(()=>({}));
+ if(!r.ok){const msg=d.error?.message||('HTTP '+r.status);
+  throw Error(r.status===429?'কোটা বা রেট লিমিট শেষ, একটু পরে চেষ্টা করুন: '+msg:(r.status===401||r.status===403||/API key/i.test(msg))?'API Key ঠিক নয় বা অনুমতি নেই: '+msg:r.status===404?'মডেলের নাম ঠিক নয় (সেটিংস দেখুন): '+msg:'Gemini সমস্যা: '+msg)}
+ const t=(d.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
+ if(!t)throw Error('AI কোনো উত্তর দেয়নি। আবার চেষ্টা করুন।');
+ try{return JSON.parse(t.replace(/^```(?:json)?\s*|\s*```$/g,''))}catch(_){throw Error('AI-র উত্তর পড়া যায়নি। আবার চেষ্টা করুন।')}}
+
+/* ---------- files → images (resized, so uploads are fast and cheap) ---------- */
+const LIBS={pdf:['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',()=>{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'}],xlsx:['https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js']};
+const lib=n=>LIBS[n].p||(LIBS[n].p=new Promise((ok,no)=>{const s=document.createElement('script');s.src=LIBS[n][0];s.onload=()=>{LIBS[n][1]?.();ok()};s.onerror=()=>{LIBS[n].p=0;no(Error('লাইব্রেরি লোড হয়নি, ইন্টারনেট দেখুন।'))};document.head.appendChild(s)}));
+const jpg=c=>c.toDataURL('image/jpeg',.85).split(',')[1];
+async function toImgs(f){
+ if(f.type==='application/pdf'||/\.pdf$/i.test(f.name)){await lib('pdf');const pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise,o=[];
+  for(let p=1;p<=Math.min(pdf.numPages,12);p++){const pg=await pdf.getPage(p),vp=pg.getViewport({scale:1.6}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;o.push(jpg(c))}return o}
+ if(!f.type.startsWith('image/'))throw Error('শুধু ছবি বা PDF দেওয়া যাবে।');
+ const b=await createImageBitmap(f),sc=Math.min(1,2000/Math.max(b.width,b.height)),c=document.createElement('canvas');
+ c.width=Math.round(b.width*sc);c.height=Math.round(b.height*sc);c.getContext('2d').drawImage(b,0,0,c.width,c.height);return[jpg(c)]}
+function prev(id,fs){const box=$(id);box.innerHTML='';fs.forEach((f,i)=>{const d=document.createElement('div');d.className='th';
+ if(f.type.startsWith('image/')){const im=new Image();im.alt='';im.src=URL.createObjectURL(f);d.appendChild(im)}else d.textContent='📄 PDF';
+ const s=document.createElement('div');s.textContent=(i+1)+'. '+f.name;d.appendChild(s);box.appendChild(d)})}
+
+/* ---------- navigation ---------- */
+function go(s){if(s!=='exam'&&!S){toast('আগে পরীক্ষা তৈরি করুন অথবা মেনু থেকে খুলুন।','err');return}
+ ui.step=s;document.querySelectorAll('[data-p]').forEach(p=>p.classList.toggle('hidden',p.dataset.p!==s));
+ document.querySelectorAll('#steps button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));render();scrollTo(0,0)}
+function render(){renderSets();if(ui.step==='exam')$('cur').textContent=S?'চলমান পরীক্ষা: '+S.name+' (নতুন তৈরি করলে এটি ইতিহাসে থেকে যাবে)':'';
+ else if(ui.step==='key')renderKey();else if(ui.step==='scan')renderScan();else renderRes()}
+function renderSets(){const bar=$('setbar'),show=S&&S.sets.length>1&&(ui.step==='key'||ui.step==='scan');bar.classList.toggle('hidden',!show);
+ if(show)bar.innerHTML=S.sets.map(x=>`<button data-set="${esc(x)}" class="${x===ui.set?'on':''}">সেট ${esc(x)}</button>`).join('')}
+$('setbar').onclick=e=>{const b=e.target.closest('[data-set]');if(!b)return;ui.set=b.dataset.set;ui.pending=null;$('srev').classList.add('hidden');render()};
+$('steps').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.s)};
+
+function boot(){const k=!!apiKey();$('gate').classList.toggle('hidden',k);$('app').classList.toggle('hidden',!k);$('steps').classList.toggle('hidden',!k);
+ $('ki').textContent=k?'Key সংরক্ষিত আছে: ••••'+apiKey().slice(-4):'কোনো API Key নেই।';$('dk').classList.toggle('hidden',!k)}
+
+/* ---------- 1. exam ---------- */
+document.querySelectorAll('[name=sm]').forEach(r=>r.onchange=()=>$('setsBox').classList.toggle('hidden',document.querySelector('[name=sm]:checked').value!=='y'));
+$('mkExam').onclick=()=>{
+ const name=$('en').value.trim(),cls=$('ec').value.trim(),subject=$('es').value.trim(),n=+$('ecount').value,multi=document.querySelector('[name=sm]:checked').value==='y';
+ if(!name||!cls||!subject||!Number.isInteger(n)||n<1||n>500)return toast('পরীক্ষার নাম, শ্রেণি, বিষয় ও শেষ রোল (১–৫০০) দিন।','err');
+ const sets=multi?[...new Set($('esets').value.split(/[,\s،]+/).map(x=>x.trim()).filter(Boolean))]:['একক'];
+ if(!sets.length)return toast('অন্তত একটি সেটের নাম লিখুন।','err');
+ S={id:Date.now()+'-'+Math.random().toString(36).slice(2,7),name,cls,subject,count:n,sets,rule:document.querySelector('[name=dr]:checked').value,keys:{},results:{}};
+ ui.set=sets[0];ui.kf={};ui.q=[];ui.pending=null;ui.fresh=0;$('roll').value='';$('qn').value='';save();go('key');toast('পরীক্ষা সংরক্ষিত হয়েছে। এবার উত্তরমালা দিন।','ok')};
+
+/* ---------- 2. answer key ---------- */
+const keyVals=()=>[...document.querySelectorAll('#kgrid select')].map(s=>s.value);
+function grid(vals){const n=+$('qn').value||0;$('kgrid').innerHTML=Array.from({length:Math.min(n,300)},(_,i)=>`<div class="ki"><b>প্রশ্ন ${bn(i+1)}</b><select data-q="${i+1}"><option value="">—</option>${['A','B','C','D'].map(o=>`<option${vals[i]===o?' selected':''}>${o}</option>`).join('')}</select></div>`).join('')}
+function renderKey(){const k=S.keys[ui.set];$('kt').textContent=(ui.set==='একক'?'একক সেট':'সেট '+ui.set)+' — উত্তরমালা'+(k?' ✓':'');
+ if(k)$('qn').value=k.length;grid(k||[]);prev('kprev',ui.kf[ui.set]||[])}
+$('qn').onchange=()=>grid(keyVals());
+['kcam','kgal'].forEach(id=>$(id).onchange=e=>{(ui.kf[ui.set]??=[]).push(...e.target.files);e.target.value='';prev('kprev',ui.kf[ui.set])});
+$('kclr').onclick=()=>{ui.kf[ui.set]=[];prev('kprev',[])};
+$('kai').onclick=async()=>{const fs=ui.kf[ui.set]||[],n=+$('qn').value;
+ if(!n)return toast('আগে মোট প্রশ্ন সংখ্যা লিখুন।','err');if(!fs.length)return toast('উত্তরমালার ছবি বা PDF দিন।','err');
+ busy('kai',1);toast('AI উত্তরমালা পড়ছে…');
+ try{const imgs=(await Promise.all(fs.map(toImgs))).flat();
+  const o=await gem(`এটি MCQ পরীক্ষার উত্তরমালা। প্রতিটি দৃশ্যমান প্রশ্ন নম্বরের পাশের সঠিক অপশন (A/B/C/D) বের করো। একাধিক কলাম বা পাতা থাকলে সব পড়ো। অস্পষ্ট হলে অনুমান না করে বাদ দাও। মোট প্রশ্ন ${n}।`,imgs,SKEY);
+  const cur=keyVals();let ok=0;(o.answers||[]).forEach(a=>{if(a.question>=1&&a.question<=n&&'ABCD'.includes(a.answer)){cur[a.question-1]=a.answer;ok++}});
+  grid(cur);toast(ok?`${bn(ok)}/${bn(n)}টি উত্তর বসেছে। মূল শিটের সাথে মিলিয়ে সংরক্ষণ করুন।`:'কোনো উত্তর শনাক্ত হয়নি। পরিষ্কার ছবি দিন।',ok?'ok':'err')}
+ catch(e){toast(e.message,'err')}finally{busy('kai',0)}};
+function score(set,ans){let s=0;S.keys[set].forEach((c,i)=>{const ch=ans[i+1]||[];if((ch.length===1&&ch[0]===c)||(S.rule==='one'&&ch.length>1&&ch.includes(c)))s++});return s}
+$('ksave').onclick=()=>{const v=keyVals();if(!v.length||v.includes(''))return toast('সব প্রশ্নের উত্তর বাছুন।','err');
+ S.keys[ui.set]=v;Object.values(S.results).forEach(x=>{if(x.set===ui.set&&x.total===v.length)x.score=score(ui.set,x.answers)});
+ save();renderKey();toast('উত্তরমালা সংরক্ষিত হয়েছে। আগের ফল (যদি থাকে) নতুন উত্তরমালা দিয়ে আবার হিসাব হয়েছে।','ok')};
+
+/* ---------- 3. scan ---------- */
+const nextRoll=r=>{for(let i=r+1;i<=S.count;i++)if(!S.results[i])return i;return''};
+function renderScan(){$('st').textContent=(ui.set==='একক'?'একক সেট':'সেট '+ui.set)+' — OMR স্ক্যান';
+ const n=$('sn');n.classList.toggle('hidden',!!S.keys[ui.set]);n.textContent='আগে এই সেটের উত্তরমালা সংরক্ষণ করুন (ধাপ ২)।';
+ $('sq').textContent=ui.q.length?`${bn(ui.q.length)}টি ছবি অপেক্ষায়। প্রথম ছবিটি এই রোলের।`:'এক বা একাধিক OMR ছবি যোগ করুন।';
+ prev('sprev',ui.q);if(!$('roll').value)$('roll').value=nextRoll(0)}
+['scam','sgal'].forEach(id=>$(id).onchange=e=>{ui.q.push(...e.target.files);e.target.value='';renderScan()});
+$('sclr').onclick=()=>{ui.q=[];ui.pending=null;$('srev').classList.add('hidden');renderScan()};
+function showRev(f){const key=S.keys[ui.pending.set],sel=ui.pending.sel;$('srev').classList.remove('hidden');$('simg').src=URL.createObjectURL(f);
+ $('sgrid').innerHTML=key.map((_,i)=>{const q=i+1,s=sel[q]||[];return `<div class="ki${s.length!==1?' warn':''}"><b>প্রশ্ন ${bn(q)}</b><div class="opts">${['A','B','C','D'].map(o=>`<label><input type="checkbox" data-q="${q}" value="${o}"${s.includes(o)?' checked':''}>${o}</label>`).join('')}</div></div>`}).join('')}
+$('sgrid').onchange=e=>{const d=e.target.closest('.ki');if(d)d.classList.toggle('warn',d.querySelectorAll('input:checked').length!==1)};
+async function scan(){const roll=+$('roll').value,key=S.keys[ui.set],f=ui.q[0];
+ if(!Number.isInteger(roll)||roll<1||roll>S.count)return toast(`রোল ১ থেকে ${bn(S.count)}-এর মধ্যে দিন।`,'err');
+ if(!key)return toast('আগে এই সেটের উত্তরমালা সংরক্ষণ করুন।','err');if(!f)return toast('OMR ছবি যোগ করুন।','err');
+ busy('sgo',1);busy('sre',1);toast('স্ক্যান হচ্ছে…');
+ try{const imgs=await toImgs(f);
+  const o=await gem(`এটি MCQ OMR শিট। প্রতিটি প্রশ্ন নম্বরের পাশে কোন বৃত্ত (A/B/C/D) ভরাট করা আছে তা শনাক্ত করো। কোনোটি ভরাট না থাকলে selected খালি রাখো। শুধু স্পষ্টভাবে ভরাট বৃত্ত ধরো। মোট প্রশ্ন ${key.length}।`,imgs,SSCAN);
+  if(!(o.answers||[]).length)throw Error('উত্তর শনাক্ত হয়নি। সোজা ও পরিষ্কার ছবি দিন।');
+  const sel={};o.answers.forEach(a=>{if(a.question>=1&&a.question<=key.length)sel[a.question]=[...new Set(a.selected||[])]});
+  ui.pending={roll,set:ui.set,sel};showRev(f);toast('যাচাই করে সংরক্ষণ করুন।','ok')}
+ catch(e){toast(e.message,'err')}finally{busy('sgo',0);busy('sre',0)}}
+$('sgo').onclick=scan;$('sre').onclick=scan;
+$('ssave').onclick=()=>{const p=ui.pending;if(!p)return;const sel={};document.querySelectorAll('#sgrid input:checked').forEach(x=>(sel[x.dataset.q]??=[]).push(x.value));
+ const total=S.keys[p.set].length,isNew=!S.results[p.roll];S.results[p.roll]={roll:p.roll,set:p.set,score:score(p.set,sel),total,answers:sel};if(isNew)ui.fresh++;
+ ui.pending=null;ui.q.shift();$('srev').classList.add('hidden');save();toast(`রোল ${bn(p.roll)}: ${bn(S.results[p.roll].score)}/${bn(total)} সংরক্ষিত।`,'ok');
+ $('roll').value=nextRoll(p.roll);renderScan()};
+
+/* ---------- 4. results ---------- */
+const rowsAoa=()=>Array.from({length:S.count},(_,i)=>{const r=i+1,x=S.results[r];return x?[r,x.set,x.score,x.total,'উপস্থিত']:[r,'—','অনুপস্থিত','—','অনুপস্থিত']});
+function renderRes(){const rs=Object.values(S.results),n=rs.length,avg=n?rs.reduce((a,x)=>a+x.score,0)/n:0,mx=n?Math.max(...rs.map(x=>x.score)):0;
+ $('rsum').innerHTML=`<p><b>${esc(S.name)}</b> · শ্রেণি ${esc(S.cls)} · ${esc(S.subject)}</p><p class="help">স্ক্যান ${bn(n)}/${bn(S.count)} জন · গড় ${bn(avg.toFixed(1))} · সর্বোচ্চ ${bn(mx)}</p>`+(ui.fresh?`<div class="note">নতুন ${bn(ui.fresh)}টি ফল যোগ হয়েছে। আপডেট রিপোর্ট পেতে PDF বা Excel আবার নামান।</div>`:'');
+ $('rt').innerHTML='<thead><tr><th>রোল</th><th>সেট</th><th>নম্বর</th><th></th></tr></thead><tbody>'+Array.from({length:S.count},(_,i)=>{const r=i+1,x=S.results[r];
+  return x?`<tr><td>${bn(r)}</td><td>${esc(x.set)}</td><td>${bn(x.score)}/${bn(x.total)}</td><td><button class="sm" data-e="${r}" aria-label="নম্বর বদলান">✎</button><button class="sm" data-x="${r}" aria-label="মুছুন">🗑</button></td></tr>`:`<tr><td>${bn(r)}</td><td>—</td><td class="ab">অনুপস্থিত</td><td></td></tr>`}).join('')+'</tbody>'}
+$('rt').onclick=e=>{const b=e.target.closest('button');if(!b)return;const r=b.dataset.e||b.dataset.x,x=S.results[r];if(!x)return;
+ if(b.dataset.x){if(confirm(`রোল ${bn(r)}-এর ফল মুছবেন?`)){delete S.results[r];save();renderRes()}return}
+ const v=prompt(`রোল ${bn(r)}: প্রাপ্ত নম্বর (মোট ${x.total})`,x.score);if(v===null)return;const n=Number(v);
+ if(!Number.isInteger(n)||n<0||n>x.total)return toast(`০ থেকে ${bn(x.total)}-এর মধ্যে দিন।`,'err');x.score=n;save();renderRes()};
+$('extb').onclick=()=>{const n=+$('ext').value;if(!Number.isInteger(n)||n<=S.count||n>500)return toast(`বর্তমান ${bn(S.count)}-এর চেয়ে বড় (সর্বোচ্চ ৫০০) রোল দিন।`,'err');
+ S.count=n;$('ext').value='';save();renderRes();toast('রোল সীমা বাড়ানো হয়েছে। আগের ফল অক্ষত আছে।','ok')};
+$('xl').onclick=async()=>{try{await lib('xlsx');const ws=XLSX.utils.aoa_to_sheet([['রোল','সেট','প্রাপ্ত নম্বর','মোট নম্বর','অবস্থা'],...rowsAoa()]),wb=XLSX.utils.book_new();
+ XLSX.utils.book_append_sheet(wb,ws,'ফলাফল');XLSX.writeFile(wb,(S.name||'ফলাফল')+'.xlsx');ui.fresh=0;renderRes()}catch(e){toast(e.message,'err')}};
+$('pdf').onclick=()=>{const w=open('','_blank');if(!w)return toast('এই সাইটের জন্য পপ-আপ অনুমতি দিন।','err');
+ const tr=rowsAoa().map(x=>`<tr><td>${x[0]}</td><td>${esc(x[1])}</td><td class="${x[4]==='অনুপস্থিত'?'a':''}">${x[2]}</td><td>${x[3]}</td></tr>`).join('');
+ w.document.write(`<!doctype html><meta charset="utf-8"><title>${esc(S.name)}</title><style>body{font-family:system-ui,'Noto Sans Bengali','Hind Siliguri',sans-serif;padding:20px}h2,p{text-align:center}table{width:100%;border-collapse:collapse}td,th{border:1px solid #bbb;padding:6px 8px;text-align:left}th{background:#e8f5ed}.a{color:#c62828;font-weight:700}</style><h2>${esc(S.name)}</h2><p>শ্রেণি ${esc(S.cls)} · ${esc(S.subject)}</p><table><thead><tr><th>রোল</th><th>সেট</th><th>প্রাপ্ত নম্বর</th><th>মোট নম্বর</th></tr></thead><tbody>${tr}</tbody></table><script>onload=()=>print()<\/script>`);
+ w.document.close();ui.fresh=0;renderRes()};
+
+/* ---------- drawer: settings + history ---------- */
+const openDr=()=>{$('bd').classList.remove('hidden');$('dr').classList.add('open');$('dr').setAttribute('aria-hidden','false');renderHist()};
+const closeDr=()=>{$('bd').classList.add('hidden');$('dr').classList.remove('open');$('dr').setAttribute('aria-hidden','true')};
+$('menuBtn').onclick=openDr;$('dx').onclick=closeDr;$('bd').onclick=closeDr;
+$('md').value=ls.get(MODEL,DEF);$('md').onchange=()=>{ls.set(MODEL,$('md').value.trim()||DEF);toast('মডেল সংরক্ষিত','ok')};
+const setKey=k=>{ls.set(KEY,k);boot();if(S)go(ui.step)};
+$('gs').onclick=()=>{const k=$('gk').value.trim();if(!k)return toast('API Key লিখুন।','err');$('gk').value='';setKey(k);go('exam');toast('Key সংরক্ষিত হয়েছে।','ok')};
+$('sk').onclick=()=>{const k=$('nk').value.trim();if(!k)return toast('নতুন Key লিখুন।','err');$('nk').value='';setKey(k);toast('Key সংরক্ষিত হয়েছে।','ok')};
+$('dk').onclick=()=>{if(!confirm('এই ব্রাউজার থেকে API Key মুছে ফেলবেন?'))return;ls.del(KEY);boot();closeDr();toast('Key মুছে ফেলা হয়েছে।')};
+$('tk').onclick=async()=>{busy('tk',1);try{await gem('Reply with {"ok":true}',[],{type:'OBJECT',properties:{ok:{type:'BOOLEAN'}}});toast('✓ Key ঠিক আছে।','ok')}catch(e){toast(e.message,'err')}busy('tk',0)};
+function renderHist(){const q=$('hs').value.trim().toLowerCase();
+ const l=hist().filter(x=>{const e=norm(x);return[e.name,e.cls,e.subject].some(v=>String(v||'').toLowerCase().includes(q))});
+ $('hl').innerHTML=l.length?l.map(x=>{const e=norm(x);return `<div class="hi"><b>${esc(e.name)}</b><small>শ্রেণি ${esc(e.cls)} · ${esc(e.subject)} · স্ক্যান ${bn(Object.keys(e.results).length)}/${bn(e.count)}</small><div class="row"><button class="btn sm" data-o="${esc(x.id)}">খুলুন</button><button class="btn red sm" data-d="${esc(x.id)}">মুছুন</button></div></div>`}).join(''):'<p class="help">কোনো পরীক্ষা পাওয়া যায়নি।</p>'}
+$('hs').oninput=renderHist;
+$('hl').onclick=e=>{const o=e.target.closest('[data-o]'),d=e.target.closest('[data-d]');
+ if(o){const r=hist().find(x=>x.id===o.dataset.o);if(!r)return;S=norm(r);ui.set=S.sets[0];ui.kf={};ui.q=[];ui.pending=null;ui.fresh=0;$('roll').value='';$('srev').classList.add('hidden');closeDr();go('res');toast('“'+S.name+'” খোলা হয়েছে। আগের ফল অক্ষত আছে।','ok')}
+ if(d){if(!confirm('এই পরীক্ষার সব ফল মুছে যাবে। নিশ্চিত?'))return;ls.set(HK,JSON.stringify(hist().filter(x=>x.id!==d.dataset.d)));if(S&&S.id===d.dataset.d){S=null;go('exam')}renderHist()}};
+$('bk').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(hist())],{type:'application/json'}));a.download='sohoj-omr-backup.json';a.click()};
+$('bi').onchange=async e=>{try{const l=JSON.parse(await e.target.files[0].text()),cur=hist(),ids=new Set(cur.map(x=>x.id));if(!Array.isArray(l))throw 0;
+ ls.set(HK,JSON.stringify([...cur,...l.filter(x=>x&&x.id&&!ids.has(x.id))]));renderHist();toast('ব্যাকআপ যোগ হয়েছে।','ok')}catch(_){toast('ব্যাকআপ ফাইলটি ঠিক নয়।','err')}e.target.value=''};
+
+boot();go('exam');
+</script>
+</body>
+</html>
