@@ -60,7 +60,10 @@ header .wrap{padding-left:52px}
  <p class="help">প্রত্যেক শিক্ষক নিজের API Key দেবেন। Key শুধু এই ব্রাউজারের localStorage-এ থাকবে; ওয়েবসাইটের মালিকের কোনো shared API Key ব্যবহার হবে না। ব্রাউজারের ডেটা মুছে গেলে আবার দিতে হবে।</p>
  <label for="firstApiKey">Gemini API Key</label><input id="firstApiKey" type="password" autocomplete="off" placeholder="API Key এখানে লিখুন">
  <p class="help">এপিআই কি কোথায় পাবেন? নিচের লিংকে যান, গুগল দিয়ে লগইন করুন, ক্রিয়েট এপিআই কি-তে চাপ দিন, কপি করে এখানে বসান। এটা একদম ফ্রি।</p>
- <p><a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">https://aistudio.google.com/app/apikey</a></p>
+ <p><a href="https://aistudio.google.com/app/apikey" target="_blank" style="display:inline-flex; align-items:center; gap:8px; background:#1a73e8; color:#fff; padding:10px 18px; border-radius:8px; text-decoration:none; font-weight:700;">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M11 12 L20 3 M17 6 L20 3 M15 8 L18 5"/></svg>
+  Collect API Key
+</a></p>
  <button class="btn" id="saveFirstKey">API Key সংরক্ষণ করুন</button> <button class="btn alt hidden" id="replaceKey" type="button">API Key পরিবর্তন</button><div id="gateStatus" class="status hidden"></div>
 </section>
 
