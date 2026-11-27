@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#14532d">
+<title>সহজ OMR — শিক্ষকদের জন্য</title>
+<style>
+:root{--g:#176b45;--g2:#23a36a;--bg:#f7f9fc;--ink:#17231d;--muted:#718078;--line:#e8edf0;--red:#c62828;--shadow:0 12px 34px rgba(24,55,39,.075)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:linear-gradient(180deg,#f8fbf9 0,#f6f8fb 40%,#f7f9fc 100%);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans Bengali","Hind Siliguri",sans-serif;font-size:16px;line-height:1.6}
+header{background:linear-gradient(125deg,#103e2d 0%,#176b45 48%,#28a66c 100%);color:#fff;padding:25px 16px 31px;border-radius:0 0 30px 30px;box-shadow:0 14px 34px #14532d25}
+header .wrap,main{max-width:920px;margin:auto}header .wrap{position:relative;padding-right:85px}
+h1{font-size:27px;letter-spacing:-.4px;margin:0 0 4px;font-weight:850}header p{margin:0;color:#e4f6eb;font-size:14px}
+.lang-switch{position:absolute;right:0;top:0;border:1px solid #ffffff70;background:#ffffff20;color:white;border-radius:99px;padding:8px 13px;font-weight:800;cursor:pointer;backdrop-filter:blur(8px)}
+main{padding:20px 13px 48px}.card{background:#fff;border:1px solid #edf1ef;border-radius:23px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+h2{font-size:19px;color:#155c3c;margin:0 0 14px;font-weight:850;display:flex;align-items:center;gap:8px}h3{font-size:16px;margin:16px 0 9px;font-weight:800}
+label{display:block;font-weight:700;font-size:14px;margin:11px 0 6px}
+input,select,textarea{width:100%;border:1px solid #dce5df;border-radius:13px;padding:12px 13px;font:inherit;background:#fbfdfc;color:var(--ink);min-height:48px;outline:none;transition:.2s}
+input:focus,select:focus,textarea:focus{border-color:#36a878;box-shadow:0 0 0 4px #23a36a18;background:#fff}
+input[type=radio],input[type=checkbox]{width:auto;min-height:0;accent-color:var(--g)}input[type=file]{font-size:13px;padding:9px;background:#f8fbf9}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.inline{display:flex;gap:15px;flex-wrap:wrap;align-items:center}.inline label{font-weight:550;margin:5px 0;background:#f6faf7;padding:8px 11px;border-radius:11px}
+.help,.muted{font-size:13px;color:var(--muted)}.help{margin:6px 0}
+.btn{border:0;border-radius:14px;background:linear-gradient(135deg,#176b45,#23a36a);color:white;padding:13px 19px;font:inherit;font-weight:800;cursor:pointer;min-height:49px;box-shadow:0 7px 16px #176b4525;transition:transform .15s,filter .15s}
+.btn:active{transform:translateY(1px)}.btn:hover{filter:brightness(1.04)}.btn.alt{background:#edf7f1;color:#176b45;border:1px solid #d7ebdf;box-shadow:none}.btn.red{background:#fff0f0;color:#a11;border:1px solid #ffdada;box-shadow:none}.btn:disabled{opacity:.55;cursor:wait}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.status{padding:12px 14px;border-radius:13px;background:#eff6ff;color:#1e40af;font-size:13px;margin-top:12px;white-space:pre-wrap}.status.err{background:#fff1f1;color:#991b1b}.status.ok{background:#effaf3;color:#166534}.hidden{display:none!important}
+.keygrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.keyitem{border:1px solid #e8efea;border-radius:13px;padding:9px;background:#fcfefd}.keyitem strong{display:block;font-size:13px;margin-bottom:5px}.keyitem select{padding:6px;min-height:39px}
+.scanrow{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px}.scanrow h3{margin:0 0 8px}
+.resulttable{width:100%;border-collapse:collapse;font-size:14px}.resulttable th,.resulttable td{border-bottom:1px solid var(--line);padding:10px 7px;text-align:left}.resulttable th{background:#f1f8f3}
+.absent{color:var(--red);font-weight:850}.pill{display:inline-block;background:#e8f6ed;color:#145c3b;padding:4px 10px;border-radius:30px;font-size:12px;font-weight:800}
+#gate{max-width:600px;margin:24px auto}.gateTitle{font-size:22px;color:#14532d;font-weight:900}.footer{text-align:center;color:var(--muted);font-size:12px;padding:12px}
+.legacy-hidden{display:none!important}.set-tab{border:1px solid #d7ebdf;background:#edf7f1;color:#176b45;border-radius:12px;padding:9px 16px;font-weight:850;cursor:pointer}.set-tab.active{background:#176b45;color:#fff}.set-panel-section{border-top:1px solid var(--line);padding-top:12px;margin-top:14px}.key-review-wrap{margin:12px 0;padding:12px;border:1px solid #dce9e0;border-radius:15px;background:#f8fcf9}.key-review-title{font-weight:850;color:#155c3c;margin-bottom:8px}.key-source-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.key-source-item{border:1px solid #e3ebe5;background:#fff;border-radius:12px;padding:8px;min-width:0}.key-source-item img{display:block;width:100%;height:auto;max-height:380px;object-fit:contain;border-radius:8px}.key-source-item iframe{width:100%;height:320px;border:0;border-radius:8px}.key-source-name{font-size:12px;color:var(--muted);overflow-wrap:anywhere;margin-top:5px}.key-review-hint{font-size:13px;color:#52665a;margin:8px 0 0}.upload-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 4px}.upload-choice{border:1px solid #e2ebe5;border-radius:15px;padding:12px;background:#fbfdfb}.upload-choice b{display:block;font-size:14px;margin-bottom:6px;color:#205c3e}.upload-choice input{font-size:12px;min-height:40px}
+.upload-choice b{display:flex;align-items:center;gap:9px}.upload-choice b:before{content:"";display:inline-block;flex:0 0 30px;width:30px;height:30px;border-radius:10px;background-color:#e7f4ec;background-repeat:no-repeat;background-position:center;background-size:17px 17px;border:1px solid #d5eadc}.upload-choice:nth-child(1) b:before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23176b45' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h3l1.5-2h7L17 7h3v12H4z'/%3E%3Ccircle cx='12' cy='13' r='3.5'/%3E%3C/svg%3E")}.upload-choice:nth-child(2) b:before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23176b45' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='2'/%3E%3Ccircle cx='8.5' cy='9' r='1.5'/%3E%3Cpath d='m21 15-5-5L5 20'/%3E%3C/svg%3E")}
+.section-kicker{font-size:11px;letter-spacing:1.2px;color:#6c9a7d;font-weight:900;text-transform:uppercase;margin-bottom:4px}
+@media(max-width:560px){header{padding:22px 15px 27px;border-radius:0 0 25px 25px}header .wrap{padding-right:78px}h1{font-size:22px}.grid{grid-template-columns:1fr}.card{padding:16px;border-radius:19px;margin-bottom:13px}main{padding:15px 11px 38px}.keygrid{grid-template-columns:repeat(2,minmax(0,1fr))}.actions{display:grid;grid-template-columns:1fr}.btn{width:100%}.upload-choices{grid-template-columns:1fr}.lang-switch{padding:7px 10px;font-size:13px}}
+
+header .wrap{padding-left:52px}
+.menu-trigger{position:absolute;left:0;top:0;width:42px;height:42px;border:1px solid #ffffff70;background:#ffffff20;color:#fff;border-radius:12px;font-size:25px;line-height:1;cursor:pointer}
+.history-backdrop{position:fixed;inset:0;background:#10251bcc;z-index:1000}
+.history-drawer{position:fixed;z-index:1001;left:0;top:0;bottom:0;width:min(360px,88vw);background:#fff;box-shadow:12px 0 40px #0002;transform:translateX(-105%);transition:transform .22s ease;overflow:auto}
+.history-drawer.open{transform:translateX(0)}
+.history-head{display:flex;align-items:center;justify-content:space-between;padding:20px;background:linear-gradient(125deg,#103e2d,#23a36a);color:white}
+.history-head strong{font-size:19px}.history-head p{margin:2px 0 0;color:#e4f6eb;font-size:13px}
+.history-head button{border:0;background:#ffffff25;color:white;border-radius:10px;font-size:27px;width:38px;height:38px;cursor:pointer}
+.history-content{padding:16px}.history-content h3{margin:0 0 12px;color:#155c3c}
+.history-item{border:1px solid #e3ebe5;border-radius:14px;padding:12px;margin:10px 0;background:#fbfdfb}
+.history-item strong{display:block}.history-item small{color:var(--muted);display:block;margin:3px 0 9px}
+.history-item button{border:0;border-radius:10px;background:#176b45;color:white;padding:8px 12px;font-weight:750;cursor:pointer}
+.extend-students{margin-top:16px;padding:13px;border:1px solid #e3ebe5;border-radius:14px;background:#fbfdfb}
+.extend-students .grid{grid-template-columns:minmax(0,1fr) auto}.extend-students .btn{min-height:45px;padding:9px 13px}
+.new-results-notice{margin:12px 0;padding:12px 14px;border-radius:13px;background:#fff7df;border:1px solid #f3dfa1;color:#76520a;font-weight:750;font-size:14px}
+@media(max-width:560px){header .wrap{padding-left:48px;padding-right:78px}.extend-students .grid{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<header><div class="wrap"><button class="menu-trigger" id="menuTrigger" type="button" aria-label="মেনু খুলুন">☰</button><button class="lang-switch" id="langToggle" type="button">English</button><h1 id="brandTitle">সহজ OMR স্ক্যানার</h1><p id="brandSubtitle">উত্তরমালা তৈরি · AI OMR স্ক্যান · ফলাফল যাচাই · PDF ও Excel রিপোর্ট</p></div></header>
+<main>
+<section id="gate" class="card hidden">
+ <div class="gateTitle">প্রথমে Gemini API Key দিন</div>
+ <p class="help">একবার দিলে এই ব্রাউজারে সেভ থাকবে, পরে আর চাইবে না। নতুন মোবাইল বা ব্রাউজারের ডেটা মুছে গেলে আবার দিতে হবে।</p>
+ <label for="firstApiKey">Gemini API Key</label><input id="firstApiKey" type="password" autocomplete="off" placeholder="API Key এখানে লিখুন">
+ <p class="help">এপিআই কি কোথায় পাবেন? নিচের লিংকে যান, গুগল দিয়ে লগইন করুন, ক্রিয়েট এপিআই কি-তে চাপ দিন, কপি করে এখানে বসান। এটা একদম ফ্রি।</p>
+ <p><a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">https://aistudio.google.com/app/apikey</a></p>
+ <button class="btn" id="saveFirstKey">API Key সংরক্ষণ করুন</button> <button class="btn alt hidden" id="replaceKey" type="button">API Key পরিবর্তন</button><div id="gateStatus" class="status hidden"></div>
+</section>
+
+<div id="app" class="hidden">
+<section class="card">
+ <h2>১. নতুন পরীক্ষা খুলুন</h2>
+ <div class="grid">
+  <div><label for="examName">পরীক্ষার নাম</label><input id="examName" placeholder="যেমন: অর্ধবার্ষিক পরীক্ষা"></div>
+  <div><label for="className">শ্রেণি</label><input id="className" placeholder="যেমন: সপ্তম"></div>
+  <div><label for="subject">বিষয়</label><input id="subject" placeholder="যেমন: বিজ্ঞান"></div>
+  <div><label for="studentCount">মোট শিক্ষার্থী / শেষ রোল</label><input id="studentCount" type="number" min="1" max="500" value="30"></div>
+ </div>
+ <label>সেট আছে কি?</label><div class="inline">
+  <label><input type="radio" name="setMode" value="yes"> সেট আছে</label>
+  <label><input type="radio" name="setMode" value="no" checked> সেট নাই, একক সেট</label>
+ </div>
+ <div id="setCreator" class="hidden">
+  <label>সেটের নাম লিখুন</label>
+  <div class="grid"><input id="newSetName" placeholder="যেমন: A, B, ক, খ"><button class="btn alt" id="addSetBtn" type="button">+ এড সেট</button></div>
+  <div id="draftSetList" class="inline"></div>
+ </div>
+ <label>একই প্রশ্নে দুইটি উত্তর চিহ্নিত হলে</label><div class="inline">
+  <label><input type="radio" name="doubleRule" value="wrong" checked> দুইটি দাগ = ভুল</label>
+  <label><input type="radio" name="doubleRule" value="one"> দুইটির মধ্যে একটি সঠিক থাকলে = সঠিক</label>
+ </div>
+ <div class="actions"><button class="btn" id="startExam">পরীক্ষার সেটিংস সংরক্ষণ করুন</button></div><div id="examStatus" class="status hidden"></div>
+</section>
+
+<section class="card legacy-hidden">
+ <h2>২. উত্তরমালা তৈরি করুন</h2>
+ <label>উত্তরমালার ফাইল দিন</label>
+ <div class="upload-choices">
+  <div class="upload-choice"><b>ক্যামেরা দিয়ে ছবি তুলুন</b><input id="keyCamera" type="file" accept="image/*" capture="environment" multiple></div>
+  <div class="upload-choice"><b>গ্যালারি / ফাইল থেকে নিন</b><input id="keyGallery" type="file" accept="image/*,.pdf,.docx,.doc" multiple></div>
+ </div>
+ <p id="keyFileNames" class="help">একাধিক ছবি, PDF বা DOCX একসঙ্গে বাছাই করতে পারবেন।</p>
+ <p class="help">হাতে লেখা বা কম্পিউটারে লেখা ফাইল দিতে পারবেন। Word-এর জন্য DOCX ভালো কাজ করে; পুরোনো DOC হলে PDF করে দিন। AI-এর ফল অবশ্যই যাচাই করবেন।</p>
+ <div class="actions"><button class="btn" id="extractBtn">AI দিয়ে উত্তর বের করুন</button></div><div id="keyStatus" class="status hidden"></div>
+ <div id="keyEditor" class="hidden">
+  <h3>উত্তরমালা যাচাই ও সংশোধন</h3>
+  <div class="grid"><div><label for="keySet">যে সেটের উত্তরমালা</label><select id="keySet"></select></div><div><label for="questionCount">মোট প্রশ্ন</label><input id="questionCount" type="number" min="1" max="300" value="20"></div></div>
+  <div class="actions"><button class="btn alt" id="buildKey">প্রশ্নের ঘর তৈরি করুন</button><button class="btn" id="saveKey">উত্তরমালা সংরক্ষণ করুন</button></div>
+  <div id="keyFields" class="keygrid" style="margin-top:12px"></div>
+  <p class="help">প্রতিটি প্রশ্নের সঠিক উত্তর A, B, C বা D নির্বাচন করুন। উত্তরমালা সংরক্ষণ না করলে স্ক্যানের নম্বর গণনা হবে না।</p>
+ </div>
+</section>
+
+<section class="card legacy-hidden">
+ <h2>৩. OMR স্ক্যান করুন</h2>
+ <p class="help">প্রথমে শিক্ষার্থীর রোল হাতে লিখুন, সেট বাছুন, তারপর OMR-এর পরিষ্কার ছবি দিন। AI প্রশ্ন নম্বর দেখে উত্তর শনাক্ত করার চেষ্টা করবে; যেকোনো বিন্যাসে শতভাগ নির্ভুলতার নিশ্চয়তা নেই। ফল দেখে সংশোধন করুন।</p>
+ <div class="grid">
+  <div><label for="roll">শিক্ষার্থীর রোল নম্বর</label><input id="roll" type="number" min="1" placeholder="যেমন: ২৬"></div>
+  <div><label for="scanSet">শিক্ষার্থীর সেট</label><select id="scanSet"></select></div>
+ </div>
+ <label>OMR শিটের ছবি দিন</label>
+ <div class="upload-choices">
+  <div class="upload-choice"><b>ক্যামেরা দিয়ে ছবি তুলুন</b><input id="omrCamera" type="file" accept="image/*" capture="environment"></div>
+  <div class="upload-choice"><b>গ্যালারি থেকে ছবি নিন</b><input id="omrGallery" type="file" accept="image/*" multiple></div>
+ </div>
+ <p id="omrFileNames" class="help">একাধিক OMR ছবি বেছে নিলে একে একে স্ক্যান হবে। প্রতিটি ছবির রোল স্যার হাতে লিখবেন।</p>
+ <div id="batchStatus" class="status hidden"></div>
+ <div class="actions"><button class="btn" id="scanBtn">OMR স্ক্যান করুন</button></div><div id="scanStatus" class="status hidden"></div>
+ <div id="scanEditor" class="hidden">
+  <h3>AI শনাক্ত করা উত্তর — যাচাই / সংশোধন</h3><p class="help">যে প্রশ্নে দাগ নেই সেটি “দাগ নেই” রাখুন। একাধিক দাগ থাকলে একাধিক অপশন টিক দিন।</p>
+  <div id="scanFields" class="keygrid"></div>
+  <div class="actions"><button class="btn alt" id="recheckBtn">পুনরায় যাচাই (AI)</button><button class="btn" id="saveScanBtn">এই শিক্ষার্থীর ফল সংরক্ষণ করুন</button></div>
+ </div>
+</section>
+
+<section class="card" id="setWorkspace">
+ <h2>২–৩. সেটভিত্তিক উত্তরমালা ও OMR স্ক্যান</h2>
+ <div id="setTabs" class="inline"></div><div id="setPanel"><p class="help">প্রথমে পরীক্ষা তৈরি করুন।</p></div>
+</section>
+<section class="card">
+ <h2>৪. শ্রেণির চূড়ান্ত ফলাফল</h2>
+ <p class="help">যে রোলগুলো স্ক্যান হয়নি, তাদের অনুপস্থিত দেখানো হবে। স্ক্যানের ক্রম নয়—রোল অনুযায়ী ছোট থেকে বড় সাজানো হবে।</p>
+ <div id="summary"></div>
+ <div class="extend-students"><label for="extendCount">নতুন শেষ রোল দিয়ে শিক্ষার্থী বাড়ান</label><div class="grid"><input id="extendCount" type="number" min="1" max="500" placeholder="যেমন: ৪০"><button class="btn alt" id="extendStudents" type="button">শিক্ষার্থী সংখ্যা বাড়ান</button></div><p class="help">এতে আগের কোনো ফলাফল মুছবে বা পরিবর্তন হবে না। নতুন রোলগুলো স্ক্যান না করা পর্যন্ত অনুপস্থিত দেখাবে।</p></div>
+ <div class="actions"><button class="btn" id="saveClass">Save This Class Result</button><button class="btn alt" id="downloadPdf">PDF ডাউনলোড</button><button class="btn alt" id="downloadXlsx">Excel ডাউনলোড</button></div>
+ <div id="finalStatus" class="status hidden"></div>
+</section>
+</div>
+</main>
+<div id="historyBackdrop" class="history-backdrop hidden"></div>
+<aside id="historyDrawer" class="history-drawer" aria-hidden="true">
+ <div class="history-head"><div><strong>শিক্ষক মেনু</strong><p>পরীক্ষা ও ফলাফলের ইতিহাস</p></div><button id="closeHistory" type="button" aria-label="বন্ধ করুন">×</button></div>
+ <div class="history-content"><h3>আগের পরীক্ষাগুলো</h3><div id="examHistoryList"><p class="help">এখনও কোনো পরীক্ষার ইতিহাস নেই।</p></div></div>
+</aside>
+<div class="footer">সহজ OMR স্ক্যানার • AI-এর ফল শিক্ষক নিজে যাচাই করবেন</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const state={exam:null,keys:{},results:{},pending:null,lastImage:null,lastScanSet:null,batchFiles:[],batchIndex:0};
+const API_URL='https://generativelanguage.googleapis.com/v1beta/interactions';
+const GEMINI_MODEL='gemini-3.8-flash';
+const GEMINI_JSON_SCHEMA={type:'object',properties:{answers:{type:'array',items:{type:'object',properties:{question:{type:'integer'},answer:{type:'string'},selected:{type:'array',items:{type:'string'}},confidence:{type:'string'}},required:['question']}}},required:['answers']};
+const sets=()=>document.querySelector('input[name="setMode"]:checked')?.value==='yes'?['A','B','C','D']:['একক'];
+const apiKey=()=>localStorage.getItem('sohoj_omr_gemini_key')||'';
+function status(id,msg,type=''){const el=$(id);el.textContent=msg;el.className='status '+type;el.classList.remove('hidden')}
+function clearStatus(id){$(id).classList.add('hidden')}
+function showApp(){const ok=!!apiKey();$('gate').classList.toggle('hidden',ok);$('app').classList.toggle('hidden',!ok);$('replaceKey').classList.toggle('hidden',!ok)} 
+$('replaceKey').onclick=()=>{localStorage.removeItem('sohoj_omr_gemini_key');$('firstApiKey').value='';showApp()}
+function updateSetMenus(){const list=sets();['keySet','scanSet'].forEach(id=>{$(id).innerHTML=list.map(s=>`<option value="${s}">${s==='একক'?'একক / Combine':'সেট '+s}</option>`).join('')})}
+$('saveFirstKey').onclick=()=>{const k=$('firstApiKey').value.trim();if(!k){status('gateStatus','API Key লিখুন।','err');return}localStorage.setItem('sohoj_omr_gemini_key',k);showApp()};
+
+function ensureExam(){if(!state.exam){status('examStatus','আগে পরীক্ষার তথ্য সংরক্ষণ করুন।','err');return false}return true}
+$('startExam').onclick=()=>{const n=Number($('studentCount').value);if(!$('examName').value.trim()||!$('className').value.trim()||!$('subject').value.trim()||!Number.isInteger(n)||n<1||n>500){status('examStatus','পরীক্ষার নাম, শ্রেণি, বিষয় এবং ১–৫০০ এর মধ্যে শেষ রোল দিন।','err');return}
+state.exam={name:$('examName').value.trim(),className:$('className').value.trim(),subject:$('subject').value.trim(),count:n,sets:sets(),doubleRule:document.querySelector('input[name="doubleRule"]:checked').value};state.keys={};state.results={};updateSetMenus();$('keyEditor').classList.remove('hidden');buildKeyFields();status('examStatus','পরীক্ষার সেটিংস সংরক্ষিত হয়েছে। এখন প্রতিটি সেটের উত্তরমালা তৈরি করুন।','ok');renderSummary()};
+function buildKeyFields(){const n=Math.min(300,Math.max(1,Number($('questionCount').value)||20));$('questionCount').value=n;$('keyFields').innerHTML=Array.from({length:n},(_,i)=>`<div class="keyitem"><strong>প্রশ্ন ${i+1}</strong><select data-q="${i+1}"><option value="">উত্তর বাছুন</option>${['A','B','C','D'].map(x=>`<option>${x}</option>`).join('')}</select></div>`).join('');const old=state.keys[$('keySet').value];if(old){$('questionCount').value=old.length;$('keyFields').innerHTML=old.map((v,i)=>`<div class="keyitem"><strong>প্রশ্ন ${i+1}</strong><select data-q="${i+1}"><option value="">উত্তর বাছুন</option>${['A','B','C','D'].map(x=>`<option ${x===v?'selected':''}>${x}</option>`).join('')}</select></div>`).join('')}}
+$('buildKey').onclick=buildKeyFields;$('keySet').onchange=buildKeyFields;
+$('saveKey').onclick=()=>{if(!ensureExam())return;const vals=[...$('keyFields').querySelectorAll('select')].map(x=>x.value);if(!vals.length||vals.some(x=>!x)){status('keyStatus','সব প্রশ্নের উত্তর নির্বাচন করুন।','err');return}state.keys[$('keySet').value]=vals;status('keyStatus','সেট '+$('keySet').value+'-এর উত্তরমালা সংরক্ষিত হয়েছে। মোট '+vals.length+'টি প্রশ্ন।','ok')};
+async function fileToParts(file){const ext=file.name.toLowerCase().split('.').pop();if(file.type.startsWith('image/'))return {parts:[{inline_data:{mime_type:file.type,data:await toBase64(file)}}],text:''};
+ if(ext==='pdf'||file.type==='application/pdf'){if(!window.pdfjsLib)throw Error('PDF পড়ার লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।');pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;let parts=[];for(let p=1;p<=Math.min(pdf.numPages,12);p++){const page=await pdf.getPage(p),vp=page.getViewport({scale:1.5}),canvas=document.createElement('canvas');canvas.width=vp.width;canvas.height=vp.height;await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;parts.push({inline_data:{mime_type:'image/jpeg',data:canvas.toDataURL('image/jpeg',.85).split(',')[1]}})}return {parts,text:''}}
+ if(ext==='docx'){if(!window.mammoth)throw Error('Word ফাইল পড়ার লাইব্রেরি লোড হয়নি।');const r=await mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});return {parts:[],text:r.value}}
+ if(ext==='doc')throw Error('পুরোনো .doc ফাইল সরাসরি পড়া যায় না। Word থেকে .docx বা PDF হিসেবে সেভ করে দিন।');
+ throw Error('এই ফাইলের ধরন সমর্থিত নয়। ছবি, PDF অথবা DOCX দিন।')}
+async function filesToParts(files){let parts=[],texts=[];for(const f of files){const item=await fileToParts(f);parts.push(...item.parts);if(item.text)texts.push('ফাইল '+f.name+':\\n'+item.text)}return {parts,text:texts.join('\\n\\n')}}
+function toBase64(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result).split(',')[1]);r.onerror=reject;r.readAsDataURL(file)})}
+async function gemini(prompt,parts=[]){
+ const key=apiKey();if(!key)throw Error('আগে API Key দিন।');
+ // Interactions API expects content items directly; image data must be base64 with mime_type.
+ const input=[{type:'text',text:prompt},...parts.map(part=>{
+  if(part.inline_data)return {type:'image',mime_type:part.inline_data.mime_type||'image/jpeg',data:part.inline_data.data};
+  if(part.text)return {type:'text',text:part.text};
+  throw Error('ফাইলের একটি অংশ সমর্থিত নয়।');
+ })];
+ // Require the exact field used by each workflow so the model cannot silently omit answers/selected.
+ const isKeyTask=/উত্তরমালা|সঠিক অপশন|\"answer\"/.test(prompt);
+ const itemSchema={type:'object',properties:{question:{type:'integer'},answer:{type:'string',enum:['A','B','C','D']},selected:{type:'array',items:{type:'string',enum:['A','B','C','D']}},confidence:{type:'string'}},required:isKeyTask?['question','answer']:['question','selected']};
+ const schema={type:'object',properties:{answers:{type:'array',items:itemSchema}},required:['answers']};
+ const body={model:GEMINI_MODEL,input,store:false,response_format:{type:'text',mime_type:'application/json',schema}};
+ let res;try{res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key,'Api-Revision':'2026-05-20'},body:JSON.stringify(body)});}catch(fetchError){throw Error('Gemini API-তে সংযোগ করা যায়নি (Failed to fetch)। ইন্টারনেট সংযোগ, ব্রাউজারের CORS/নেটওয়ার্ক ব্লক এবং API endpoint অ্যাক্সেস পরীক্ষা করুন। সম্ভব হলে HTML ফাইলটি HTTPS বা localhost ওয়েব সার্ভার থেকে খুলে আবার চেষ্টা করুন।');}
+ let data={};try{data=await res.json()}catch(_){throw Error('Gemini API থেকে সঠিক JSON response পাওয়া যায়নি।')}
+ if(!res.ok)throw Error(data.error?.message||data.message||'Gemini API অনুরোধ ব্যর্থ হয়েছে (HTTP '+res.status+')।');
+ const txt=data.output_text||((data.steps||[]).filter(step=>step.type==='model_output').flatMap(step=>step.content||[]).filter(item=>item.type==='text'&&item.text).map(item=>item.text).join(''));
+ if(!txt)throw Error('AI কোনো উত্তর দেয়নি।');
+ const cleaned=txt.replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'').trim();
+ try{return JSON.parse(cleaned)}catch(_){throw Error('AI-এর উত্তর JSON ফরম্যাটে পাওয়া যায়নি। আবার চেষ্টা করুন।')}
+}
+$('extractBtn').onclick=async()=>{if(!ensureExam())return;const files=[...$('keyCamera').files,...$('keyGallery').files];if(!files.length){status('keyStatus','প্রথমে উত্তরমালার ছবি বা ফাইল দিন।','err');return}const btn=$('extractBtn');btn.disabled=true;status('keyStatus','ফাইল পড়া হচ্ছে এবং Gemini AI উত্তর শনাক্ত করছে…');try{const file=await filesToParts(files);const prompt='তুমি একটি পরীক্ষার উত্তরমালা থেকে MCQ উত্তর বের করবে। ছবিতে/লেখায় প্রশ্ন নম্বর ও সঠিক অপশন শনাক্ত করো। শুধু JSON দাও এই আকারে {"answers":[{"question":1,"answer":"A"}]}। অপশন A/B/C/D ছাড়া অন্য কিছু দেবে না। অস্পষ্ট বা নিশ্চিত নও এমন প্রশ্ন বাদ দাও।';const obj=await gemini(prompt+(file.text?'\nWord নথির লেখা:\n'+file.text:''),file.parts);const answers=Array.isArray(obj.answers)?obj.answers:[];if(!answers.length)throw Error('কোনো উত্তর শনাক্ত হয়নি। পরিষ্কার ছবি বা PDF দিয়ে আবার চেষ্টা করুন।');const max=Math.max(...answers.map(x=>Number(x.question)||0));$('questionCount').value=Math.min(300,Math.max(1,max));buildKeyFields();answers.forEach(x=>{const el=$('keyFields').querySelector(`[data-q="${Number(x.question)}"]`);if(el&&['A','B','C','D'].includes(String(x.answer).toUpperCase()))el.value=String(x.answer).toUpperCase()});status('keyStatus',answers.length+'টি উত্তর শনাক্ত হয়েছে। '+files.length+'টি ফাইল থেকে পাওয়া উত্তর মিলিয়ে Save করুন।','ok');$('keyEditor').classList.remove('hidden')}catch(e){status('keyStatus','সমস্যা: '+e.message,'err')}finally{btn.disabled=false}};
+function renderScanFields(answers,count){$('scanFields').innerHTML=Array.from({length:count},(_,i)=>{const a=answers.find(x=>Number(x.question)===i+1);const opts=Array.isArray(a?.selected)?a.selected:[];return `<div class="keyitem"><strong>প্রশ্ন ${i+1}</strong><div class="inline">${['A','B','C','D'].map(o=>`<label><input type="checkbox" data-q="${i+1}" value="${o}" ${opts.includes(o)?'checked':''}>${o}</label>`).join('')}</div></div>`}).join('')}
+async function scanImage(retry=false){if(!ensureExam())return;const roll=Number($('roll').value),set=$('scanSet').value;const key=state.keys[set];if(!Number.isInteger(roll)||roll<1||roll>state.exam.count){status('scanStatus','রোল ১ থেকে '+state.exam.count+'-এর মধ্যে দিন।','err');return}if(!key){status('scanStatus','এই সেটের উত্তরমালা আগে সংরক্ষণ করুন।','err');return}const file=retry?state.lastImage:(state.batchFiles[state.batchIndex]||$('omrCamera').files[0]||$('omrGallery').files[0]);if(!file){status('scanStatus','OMR শিটের ছবি দিন।','err');return}state.lastImage=file;state.lastScanSet=set;$('scanBtn').disabled=true;status('scanStatus','OMR ছবিটি AI দিয়ে বিশ্লেষণ করা হচ্ছে…');try{const f=await fileToParts(file);if(!f.parts.length)throw Error('OMR স্ক্যানের জন্য ছবি দিন।');const prompt=`এটি একটি MCQ OMR উত্তরপত্র। প্রশ্নের নম্বর খুঁজে বের করে প্রতিটি প্রশ্নে কোন বৃত্ত/অপশন পূরণ করা হয়েছে তা শনাক্ত করো। প্রশ্নগুলো এলোমেলো জায়গায় বা ক্রমের বাইরে থাকতে পারে; প্রশ্ন নম্বর দেখে মিলাবে। কেবল JSON দাও: {"answers":[{"question":1,"selected":["A"],"confidence":"high"}]}। selected-এ A/B/C/D-এর শূন্য, এক বা একাধিক অপশন থাকবে। কোনো দাগ না থাকলে [] দেবে। অস্পষ্ট হলে যা বোঝা যায় তা দাও এবং confidence low দাও। মোট প্রশ্ন ${key.length}।`;
+const obj=await gemini(prompt,f.parts),answers=Array.isArray(obj.answers)?obj.answers:[];if(!answers.length)throw Error('প্রশ্নের উত্তর শনাক্ত হয়নি। ছবি আরও পরিষ্কার করে দিন।');state.pending={roll,set,answers,count:key.length};renderScanFields(answers,key.length);$('scanEditor').classList.remove('hidden');status('scanStatus','AI স্ক্যান শেষ। '+answers.length+'টি প্রশ্নের তথ্য পাওয়া গেছে। নিচে মিলিয়ে নিন।','ok')}catch(e){status('scanStatus','সমস্যা: '+e.message,'err')}finally{$('scanBtn').disabled=false}}
+$('scanBtn').onclick=()=>{if(!state.batchFiles.length){state.batchFiles=[...$('omrCamera').files,...$('omrGallery').files];state.batchIndex=0}scanImage(false)};$('recheckBtn').onclick=()=>scanImage(true);
+function updateBatchLabel(){const total=state.batchFiles.length;if(total){status('batchStatus','মোট '+total+'টি ছবি বাছাই হয়েছে। এখন '+(state.batchIndex+1)+' নম্বর ছবি স্ক্যান হবে। প্রতিটি ছবির জন্য রোল ও সেট লিখে “OMR স্ক্যান করুন” চাপুন।','ok')}else clearStatus('batchStatus')}
+['omrCamera','omrGallery'].forEach(id=>$(id).addEventListener('change',()=>{state.batchFiles=[...$('omrCamera').files,...$('omrGallery').files];state.batchIndex=0;updateBatchLabel();$('omrFileNames').textContent=state.batchFiles.length+'টি OMR ছবি নির্বাচন করা হয়েছে.'}));
+['keyCamera','keyGallery'].forEach(id=>$(id).addEventListener('change',()=>{$('keyFileNames').textContent=[...$('keyCamera').files,...$('keyGallery').files].length+'টি উত্তরমালার ফাইল নির্বাচন করা হয়েছে.'}));
+$('saveScanBtn').onclick=()=>{if(!state.pending)return;const selected={};$('scanFields').querySelectorAll('input[type=checkbox]:checked').forEach(x=>{const q=x.dataset.q;(selected[q]??=[]).push(x.value)});const {roll,set,count}=state.pending;let score=0;for(let q=1;q<=count;q++){const chosen=selected[q]||[],correct=state.keys[set][q-1];let good=chosen.length===1&&chosen[0]===correct;if(state.exam.doubleRule==='one'&&chosen.length>1&&chosen.includes(correct))good=true;if(good)score++}state.results[roll]={roll,set,score,total:count,answers:selected};$('scanEditor').classList.add('hidden');$('roll').value='';state.pending=null;renderSummary();status('scanStatus','রোল '+roll+'-এর ফল সংরক্ষিত হয়েছে: '+score+'/'+count,'ok');
+if(state.batchFiles.length&&state.batchIndex<state.batchFiles.length-1){state.batchIndex++;$('roll').focus();status('batchStatus','পরের ছবি '+(state.batchIndex+1)+' / '+state.batchFiles.length+' প্রস্তুত। এবার পরের শিক্ষার্থীর রোল ও সেট লিখে “OMR স্ক্যান করুন” চাপুন।','ok')}
+else if(state.batchFiles.length){status('batchStatus','নির্বাচিত সব '+state.batchFiles.length+'টি ছবি স্ক্যান করা হয়েছে।','ok');state.batchFiles=[];state.batchIndex=0;$('omrCamera').value='';$('omrGallery').value=''}};
+function renderSummary(){if(!state.exam){$('summary').innerHTML='<p class="muted">এখনও পরীক্ষা তৈরি হয়নি।</p>';return}const rows=[];for(let r=1;r<=state.exam.count;r++){const x=state.results[r];rows.push(x?`<tr><td>${r}</td><td>${x.set==='একক'?'একক':'সেট '+x.set}</td><td>${x.score}</td><td>${x.total}</td></tr>`:`<tr><td>${r}</td><td>—</td><td class="absent">অনুপস্থিত / Absent</td><td>—</td></tr>`)}$('summary').innerHTML=`<p><b>${state.exam.name}</b> · শ্রেণি ${state.exam.className} · ${state.exam.subject}</p><p class="muted">স্ক্যান হয়েছে ${Object.keys(state.results).length} / ${state.exam.count} জন</p><div style="overflow-x:auto"><table class="resulttable"><thead><tr><th>রোল</th><th>সেট</th><th>প্রাপ্ত নম্বর</th><th>মোট নম্বর</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`}
+function escapeHtml(v){return String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;')}
+function rowsForExport(){if(!state.exam)throw Error('আগে পরীক্ষা তৈরি করুন।');return Array.from({length:state.exam.count},(_,i)=>{const r=i+1,x=state.results[r];return x?{রোল:r,সেট:x.set==='একক'?'একক':'সেট '+x.set,'প্রাপ্ত নম্বর':x.score,'মোট নম্বর':x.total,অবস্থা:'উপস্থিত'}:{রোল:r,সেট:'—','প্রাপ্ত নম্বর':'অনুপস্থিত / Absent','মোট নম্বর':'—',অবস্থা:'অনুপস্থিত'}})}
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+$('saveClass').onclick=()=>{try{rowsForExport();renderSummary();status('finalStatus','শ্রেণির ফলাফল প্রস্তুত। PDF অথবা Excel ডাউনলোড করুন।','ok')}catch(e){status('finalStatus',e.message,'err')}};
+$('downloadXlsx').onclick=()=>{try{const data=rowsForExport();if(!window.XLSX)throw Error('Excel লাইব্রেরি লোড হয়নি।');const ws=XLSX.utils.json_to_sheet(data),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'ফলাফল');XLSX.writeFile(wb,'পরীক্ষার_ফলাফল.xlsx')}catch(e){status('finalStatus',e.message,'err')}};
+$('downloadPdf').onclick=()=>{try{const data=rowsForExport();const win=window.open('','_blank');if(!win)throw Error('পপ-আপ বন্ধ আছে। এই সাইটের জন্য পপ-আপ অনুমতি দিন।');const body=data.map(x=>`<tr><td>${x.রোল}</td><td>${x.সেট}</td><td class="${String(x['প্রাপ্ত নম্বর']).includes('Absent')?'absent':''}">${x['প্রাপ্ত নম্বর']}</td><td>${x['মোট নম্বর']}</td></tr>`).join('');win.document.write(`<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>পরীক্ষার ফলাফল</title><style>body{font-family:system-ui,'Noto Sans Bengali','Hind Siliguri',sans-serif;padding:22px;color:#17251b}h2{text-align:center;margin:0 0 8px}p{text-align:center;margin:4px 0 18px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #888;padding:8px;text-align:center}th{background:#e8f2ea}.absent{color:#b91c1c;font-weight:bold}@media print{button{display:none}}</style></head><body><h2>পরীক্ষার ফলাফল</h2><p>${escapeHtml(state.exam.name)} · শ্রেণি: ${escapeHtml(state.exam.className)} · বিষয়: ${escapeHtml(state.exam.subject)}</p><table><thead><tr><th>রোল</th><th>সেট</th><th>প্রাপ্ত নম্বর</th><th>মোট নম্বর</th></tr></thead><tbody>${body}</tbody></table><p><button onclick="window.print()">PDF হিসেবে সংরক্ষণ / প্রিন্ট</button></p>
+
+
+
+
+
+\n
+
+
+
+</body></html>`);win.document.close();status('finalStatus','নতুন ট্যাবে ফলাফল খুলেছে। Print / PDF হিসেবে সংরক্ষণ বেছে নিন। বাংলা লেখা ও অনুপস্থিতির লাল রং থাকবে।','ok')}catch(e){status('finalStatus',e.message,'err')}};
+document.querySelectorAll('input[name="setMode"]').forEach(x=>x.addEventListener('change',()=>{updateSetMenus();if(state.exam){state.exam.sets=sets();status('examStatus','সেটের ধরন বদলেছে। প্রয়োজন হলে উত্তরমালা আবার তৈরি করুন।','')} }));
+
+const uiText={
+'সহজ OMR স্ক্যানার':'Easy OMR Scanner','উত্তরমালা তৈরি · AI OMR স্ক্যান · ফলাফল যাচাই · PDF ও Excel রিপোর্ট':'Answer sheet checking and results for school teachers',
+'প্রথমে Gemini API Key দিন':'Set up Gemini API Key','Gemini API Key':'Gemini API Key','API Key সংরক্ষণ করুন':'Save API Key','API Key পরিবর্তন':'Change API Key',
+'১. নতুন পরীক্ষা খুলুন':'1. Create New Exam','পরীক্ষার নাম':'Exam Name','শ্রেণি':'Class','বিষয়':'Subject','মোট শিক্ষার্থী / শেষ রোল':'Number of Students / Last Roll',
+'সেট আছে':'Yes, A/B/C/D Sets','সেট নাই, একক সেট':'No, Single / Combined Set','একই প্রশ্নে দুইটি উত্তর চিহ্নিত হলে':'If two answers are marked for one question',
+'দুইটি দাগ = ভুল':'Two marks = Wrong','দুইটির মধ্যে একটি সঠিক থাকলে = সঠিক':'Correct if one of the two is correct','পরীক্ষার সেটিংস সংরক্ষণ করুন':'Save Exam Settings',
+'২. উত্তরমালা তৈরি করুন':'2. Answer Key','উত্তরমালার ফাইল দিন':'Upload Answer Key','ক্যামেরা দিয়ে ছবি তুলুন':'Take a Photo','গ্যালারি / ফাইল থেকে নিন':'Choose from Gallery / Files',
+'AI দিয়ে উত্তর বের করুন':'Extract Answers with AI','উত্তরমালা যাচাই ও সংশোধন':'Review and Edit Answer Key','যে সেটের উত্তরমালা':'Answer Key Set','মোট প্রশ্ন':'Total Questions','প্রশ্নের ঘর তৈরি করুন':'Create Question Fields','উত্তরমালা সংরক্ষণ করুন':'Save Answer Key',
+'৩. OMR স্ক্যান করুন':'3. Scan OMR','শিক্ষার্থীর রোল নম্বর':'Student Roll Number','শিক্ষার্থীর সেট':'Student Set','OMR শিটের ছবি দিন':'Upload OMR Sheet','গ্যালারি থেকে ছবি নিন':'🖼️ Choose from Gallery',
+'OMR স্ক্যান করুন':'Scan OMR','AI শনাক্ত করা উত্তর — যাচাই / সংশোধন':'AI Detected Answers — Review / Edit','পুনরায় যাচাই (AI)':'Recheck with AI','এই শিক্ষার্থীর ফল সংরক্ষণ করুন':'Save This Student Result',
+'৪. শ্রেণির চূড়ান্ত ফলাফল':'4. Final Class Result','Save This Class Result':'Save This Class Result','PDF ডাউনলোড':'Download PDF','Excel ডাউনলোড':'Download Excel',
+'রোল':'Roll','সেট':'Set','প্রাপ্ত নম্বর':'Marks Obtained','মোট নম্বর':'Total Marks'
+};
+let currentLang='bn';
+function translateInterface(){
+ const english=currentLang==='en';
+ document.documentElement.lang=english?'en':'bn';
+ $('langToggle').textContent=english?'বাংলা':'English';
+ document.querySelectorAll('h1,h2,h3,button,.upload-choice b,label').forEach(el=>{
+   if(el.tagName==='LABEL' && el.querySelector('input')){
+     el.childNodes.forEach(node=>{if(node.nodeType===3 && node.textContent.trim()){if(!node.__bnText)node.__bnText=node.textContent.trim();const bn=node.__bnText;if(uiText[bn])node.textContent=english?' '+uiText[bn]: ' '+bn;}});
+   }else{
+     if(!el.dataset.bnText)el.dataset.bnText=el.textContent.trim();
+     const bn=el.dataset.bnText;if(uiText[bn])el.textContent=english?uiText[bn]:bn;
+   }
+ });
+ document.querySelectorAll('input[placeholder]').forEach(el=>{
+   if(!el.dataset.bnPlaceholder)el.dataset.bnPlaceholder=el.placeholder;
+   const map={'যেমন: অর্ধবার্ষিক পরীক্ষা':'e.g. Half-yearly Exam','যেমন: সপ্তম':'e.g. Class Seven','যেমন: বিজ্ঞান':'e.g. Science','যেমন: ২৬':'e.g. 26','API Key এখানে লিখুন':'Enter API Key'};
+   el.placeholder=english?(map[el.dataset.bnPlaceholder]||el.dataset.bnPlaceholder):el.dataset.bnPlaceholder;
+ });
+ // The API instructions and all .help/.muted guidance remain Bengali by design.
+}
+$('langToggle').onclick=()=>{currentLang=currentLang==='bn'?'en':'bn';translateInterface()};
+
+showApp();updateSetMenus();renderSummary();translateInterface();
+</script>
+
+<script>
+/* Set-isolated workflow: the original scanner, API, file readers and scoring rules are reused. */
+state.draftSets=[];
+state.activeSet=null;
+const resultKey=(set,roll)=>set+'::'+roll;
+function esc(v){return String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;')}
+function renderDraft(){ $('draftSetList').innerHTML=state.draftSets.map((x,i)=>`<span class="pill">${esc(x)} <button type="button" data-rm="${i}" style="border:0;background:none;color:#a11">×</button></span>`).join('') }
+document.querySelectorAll('input[name="setMode"]').forEach(x=>x.addEventListener('change',()=>{$('setCreator').classList.toggle('hidden',document.querySelector('input[name="setMode"]:checked').value!=='yes')}));
+$('addSetBtn').onclick=()=>{const n=$('newSetName').value.trim();if(!n){status('examStatus','সেটের নাম লিখুন।','err');return}if(state.draftSets.includes(n)){status('examStatus','এই নামের সেট আগে যোগ করা হয়েছে।','err');return}state.draftSets.push(n);$('newSetName').value='';renderDraft()};
+$('draftSetList').addEventListener('click',e=>{const b=e.target.closest('[data-rm]');if(b){state.draftSets.splice(+b.dataset.rm,1);renderDraft()}});
+$('startExam').onclick=()=>{
+ const n=Number($('studentCount').value),mode=document.querySelector('input[name="setMode"]:checked').value;
+ if(!$('examName').value.trim()||!$('className').value.trim()||!$('subject').value.trim()||!Number.isInteger(n)||n<1||n>500){status('examStatus','পরীক্ষার নাম, শ্রেণি, বিষয় এবং ১–৫০০ এর মধ্যে শেষ রোল দিন।','err');return}
+ const chosen=mode==='yes'?[...state.draftSets]:['একক'];
+ if(!chosen.length){status('examStatus','কমপক্ষে একটি সেট এড করুন।','err');return}
+ state.exam={name:$('examName').value.trim(),className:$('className').value.trim(),subject:$('subject').value.trim(),count:n,sets:chosen,doubleRule:document.querySelector('input[name="doubleRule"]:checked').value};
+ state.keys={};state.results={};state.activeSet=chosen[0];state.batchFiles=[];state.batchIndex=0;renderSetUI();renderSummary();
+ status('examStatus','পরীক্ষার সেটিংস সংরক্ষিত হয়েছে। প্রতিটি সেটের ট্যাব থেকে আলাদা উত্তরমালা ও OMR স্ক্যান করুন।','ok')
+};
+function panelMarkup(set){
+ const k=state.keys[set];
+ return `<h3>${set==='একক'?'একক সেট':'সেট '+esc(set)} — উত্তরমালা</h3>
+ <div class="upload-choices"><div class="upload-choice"><b>ক্যামেরা দিয়ে উত্তরমালার ছবি তুলুন</b><input id="setKeyCamera" type="file" accept="image/*" capture="environment" multiple></div><div class="upload-choice"><b>গ্যালারি / ফাইল থেকে নিন</b><input id="setKeyGallery" type="file" accept="image/*,.pdf,.docx,.doc" multiple></div></div>
+ <p id="setKeyFiles" class="help">এই ফাইল শুধু ${esc(set)} সেটের উত্তরমালা হবে। ফাইল বাছাই করলেই মূল শিটের প্রিভিউ দেখা যাবে।</p><div class="actions"><button class="btn" id="setExtract">AI দিয়ে উত্তর বের করুন</button></div><div id="setKeyStatus" class="status hidden"></div>
+ <div class="key-review-wrap"><div class="key-review-title">১) আপলোড করা উত্তরমালার মূল শিট</div><div id="setKeySourcePreview" class="key-source-grid"><p class="help">ক্যামেরা বা গ্যালারি থেকে উত্তরমালার ফাইল বাছাই করুন।</p></div><p class="key-review-hint">মূল শিটটি এখানে দেখে নিন। AI উত্তর বের করার পর নিচের উত্তরগুলোর সঙ্গে প্রশ্ন ধরে মিলিয়ে ভুল থাকলে সংশোধন করুন।</p></div>
+ <div id="setKeyEditor"><div class="key-review-title">২) উত্তরমালা যাচাই / নিজে লিখুন</div><p class="help">AI দিয়ে উত্তর বের করুন, অথবা নিজে প্রতিটি প্রশ্নের সঠিক অপশন নির্বাচন করুন। সংরক্ষণের আগে মূল শিটের সঙ্গে মিলিয়ে নিন।</p><label>মোট প্রশ্ন</label><input id="setQuestionCount" type="number" min="1" max="300" value="${k?.length||20}"><div class="actions"><button class="btn alt" id="setBuildKey">প্রশ্নের ঘর তৈরি করুন</button><button class="btn" id="setSaveKey">যাচাই করে উত্তরমালা সংরক্ষণ করুন</button></div><div id="setKeyFields" class="keygrid" style="margin-top:12px"></div></div>
+ <div class="set-panel-section"><h3>${set==='একক'?'একক সেট':'সেট '+esc(set)} — OMR স্ক্যান</h3>
+ <label>শিক্ষার্থীর রোল নম্বর</label><input id="setRoll" type="number" min="1" placeholder="যেমন: ১৪">
+ <div class="upload-choices"><div class="upload-choice"><b>ক্যামেরা দিয়ে ছবি তুলুন</b><input id="setOmrCamera" type="file" accept="image/*" capture="environment"></div><div class="upload-choice"><b>গ্যালারি থেকে ছবি নিন</b><input id="setOmrGallery" type="file" accept="image/*" multiple></div></div>
+ <p id="setOmrFiles" class="help">এই ট্যাবের শিক্ষার্থীদের OMR ছবি দিন।</p><div id="setBatchStatus" class="status hidden"></div><div class="actions"><button class="btn" id="setScan">OMR স্ক্যান করুন</button></div><div id="setScanStatus" class="status hidden"></div>
+ <div id="setScanEditor" class="hidden"><h3>AI শনাক্ত করা উত্তর — যাচাই / সংশোধন</h3><p class="help">প্রতিটি প্রশ্নের দাগ মিলিয়ে নিন।</p><div id="setScanFields" class="keygrid"></div><div class="actions"><button class="btn alt" id="setRecheck">পুনরায় যাচাই (AI)</button><button class="btn" id="setSaveScan">এই শিক্ষার্থীর ফল সংরক্ষণ করুন</button></div></div>
+ <h3>এই সেটের শিক্ষার্থীদের ফল</h3><div id="setStudentResults"></div></div>`
+}
+function renderSetUI(){
+ const multi=state.exam.sets.length>1 || state.exam.sets[0]!=='একক';
+ $('setTabs').innerHTML=multi?state.exam.sets.map(x=>`<button class="set-tab ${x===state.activeSet?'active':''}" data-tab="${esc(x)}">${esc(x)}</button>`).join(''):'';
+ $('setPanel').innerHTML=panelMarkup(state.activeSet);bindSetPanel();renderSetResults()
+}
+$('setTabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;state.activeSet=b.dataset.tab;state.batchFiles=[];state.batchIndex=0;state.pending=null;renderSetUI()});
+function buildSetKey(){const n=Math.min(300,Math.max(1,Number($('setQuestionCount').value)||20));$('setQuestionCount').value=n;const old=state.keys[state.activeSet]||[];$('setKeyFields').innerHTML=Array.from({length:n},(_,i)=>`<div class="keyitem"><strong>প্রশ্ন ${i+1}</strong><select data-q="${i+1}"><option value="">উত্তর বাছুন</option>${['A','B','C','D'].map(o=>`<option ${old[i]===o?'selected':''}>${o}</option>`).join('')}</select></div>`).join('')}
+function renderKeySourcePreview(files){
+ const box=$('setKeySourcePreview');if(!box)return;
+ box.innerHTML='';
+ files.forEach((file,index)=>{
+  const item=document.createElement('div');item.className='key-source-item';
+  const name=document.createElement('div');name.className='key-source-name';name.textContent=(index+1)+'. '+file.name;
+  if(file.type.startsWith('image/')){const img=document.createElement('img');img.alt='উত্তরমালার মূল ছবি '+(index+1);img.src=URL.createObjectURL(file);item.appendChild(img)}
+  else if(file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf')){const frame=document.createElement('iframe');frame.title='উত্তরমালার PDF preview';frame.src=URL.createObjectURL(file);item.appendChild(frame)}
+  else {const note=document.createElement('p');note.className='help';note.textContent='এই ফাইলের সরাসরি প্রিভিউ দেখানো যাচ্ছে না। AI থেকে পাওয়া উত্তরগুলো নিচে সম্পাদনা করে মূল DOCX ফাইলের সঙ্গে মিলিয়ে নিন।';item.appendChild(note)}
+  item.appendChild(name);box.appendChild(item);
+ });
+}
+function bindSetPanel(){
+ const set=state.activeSet;buildSetKey();
+ $('setBuildKey').onclick=buildSetKey;
+ $('setSaveKey').onclick=()=>{const vals=[...$('setKeyFields').querySelectorAll('select')].map(x=>x.value);if(!vals.length||vals.some(x=>!x)){status('setKeyStatus','সব প্রশ্নের উত্তর নির্বাচন করুন।','err');return}state.keys[set]=vals;status('setKeyStatus',`সেট ${set}-এর উত্তরমালা সংরক্ষিত হয়েছে।`,'ok');renderSetResults()};
+ ['setKeyCamera','setKeyGallery'].forEach(id=>$(id).onchange=()=>{const fs=[...$('setKeyCamera').files,...$('setKeyGallery').files];$('setKeyFiles').textContent=fs.length+'টি ফাইল নির্বাচন করা হয়েছে। মূল শিট নিচে দেখুন।';if(fs.length)renderKeySourcePreview(fs);else $('setKeySourcePreview').innerHTML='<p class=\"help\">ক্যামেরা বা গ্যালারি থেকে উত্তরমালার ফাইল বাছাই করুন।</p>';});
+ $('setExtract').onclick=async()=>{const fs=[...$('setKeyCamera').files,...$('setKeyGallery').files];if(!fs.length){status('setKeyStatus','প্রথমে উত্তরমালার ফাইল দিন।','err');return}try{$('setExtract').disabled=true;status('setKeyStatus','AI উত্তর শনাক্ত করছে…');renderKeySourcePreview(fs);const f=await filesToParts(fs),o=await gemini('পরীক্ষার উত্তরমালা থেকে প্রশ্ন নম্বর ও সঠিক অপশন বের করো। প্রশ্ন নম্বর ঠিক রাখবে। শুধু JSON: {"answers":[{"question":1,"answer":"A"}]}। অপশন A/B/C/D ছাড়া অন্য কিছু দেবে না। অস্পষ্ট হলে অনুমান না করে বাদ দাও।',f.parts);const ans=o.answers||[];if(!ans.length)throw Error('কোনো উত্তর শনাক্ত হয়নি।');$('setQuestionCount').value=Math.min(300,Math.max(1,...ans.map(x=>Number(x.question)||0)));buildSetKey();ans.forEach(x=>{const el=$('setKeyFields').querySelector(`[data-q="${Number(x.question)}"]`);if(el&&'ABCD'.includes(String(x.answer||'').trim().toUpperCase()))el.value=String(x.answer).trim().toUpperCase()});$('setKeyEditor').classList.remove('hidden');status('setKeyStatus',ans.length+'টি উত্তর পাওয়া গেছে। মূল শিট দেখে নিচের প্রতিটি উত্তর যাচাই/সংশোধন করে তারপর সংরক্ষণ করুন।','ok')}catch(e){status('setKeyStatus','সমস্যা: '+e.message,'err')}finally{$('setExtract').disabled=false}};
+ $('setScan').onclick=()=>{if(!state.batchFiles.length){state.batchFiles=[...$('setOmrCamera').files,...$('setOmrGallery').files];state.batchIndex=0}scanSetImage(false)};
+ $('setRecheck').onclick=()=>scanSetImage(true);
+ ['setOmrCamera','setOmrGallery'].forEach(id=>$(id).onchange=()=>{state.batchFiles=[...$('setOmrCamera').files,...$('setOmrGallery').files];state.batchIndex=0;$('setOmrFiles').textContent=state.batchFiles.length+'টি OMR ছবি নির্বাচন করা হয়েছে।'});
+ $('setSaveScan').onclick=saveSetScan;
+}
+async function scanSetImage(retry=false){
+ const set=state.activeSet,roll=Number($('setRoll').value),key=state.keys[set];
+ if(!Number.isInteger(roll)||roll<1||roll>state.exam.count){status('setScanStatus','রোল ১ থেকে '+state.exam.count+'-এর মধ্যে দিন।','err');return}
+ if(!key){status('setScanStatus','এই সেটের উত্তরমালা আগে সংরক্ষণ করুন।','err');return}
+ const file=retry?state.lastImage:(state.batchFiles[state.batchIndex]||$('setOmrCamera').files[0]||$('setOmrGallery').files[0]);if(!file){status('setScanStatus','OMR ছবি দিন।','err');return}
+ state.lastImage=file;state.lastScanSet=set;status('setScanStatus','OMR স্ক্যান হচ্ছে…');
+ try{const f=await fileToParts(file),o=await gemini(`MCQ OMR ছবিতে প্রশ্ন নম্বর দেখে পূরণ করা অপশন শনাক্ত করো। শুধু JSON: {"answers":[{"question":1,"selected":["A"]}]}। ফাঁকা হলে []। মোট প্রশ্ন ${key.length}।`,f.parts);const ans=o.answers||[];if(!ans.length)throw Error('উত্তর শনাক্ত হয়নি।');state.pending={roll,set,answers:ans,count:key.length};$('setScanFields').innerHTML=Array.from({length:key.length},(_,i)=>{const a=ans.find(x=>Number(x.question)===i+1),sel=(a?.selected||[]).map(v=>String(v).trim().toUpperCase());return `<div class="keyitem"><strong>প্রশ্ন ${i+1}</strong><div class="inline">${['A','B','C','D'].map(o=>`<label><input type="checkbox" data-q="${i+1}" value="${o}" ${sel.includes(o)?'checked':''}>${o}</label>`).join('')}</div></div>`}).join('');$('setScanEditor').classList.remove('hidden');status('setScanStatus','AI স্ক্যান শেষ। উত্তরগুলো যাচাই করুন।','ok')}catch(e){status('setScanStatus','সমস্যা: '+e.message,'err')}
+}
+function saveSetScan(){
+ if(!state.pending)return;const selected={};$('setScanFields').querySelectorAll('input:checked').forEach(x=>(selected[x.dataset.q]??=[]).push(x.value));
+ const {roll,set,count}=state.pending;let score=0;
+ for(let q=1;q<=count;q++){const chosen=selected[q]||[],correct=state.keys[set][q-1];let good=chosen.length===1&&chosen[0]===correct;if(state.exam.doubleRule==='one'&&chosen.length>1&&chosen.includes(correct))good=true;if(good)score++}
+ state.results[resultKey(set,roll)]={roll,set,score,total:count,answers:selected};state.pending=null;$('setScanEditor').classList.add('hidden');$('setRoll').value='';status('setScanStatus',`রোল ${roll}, সেট ${set}: ${score}/${count} সংরক্ষিত হয়েছে।`,'ok');renderSetResults();renderSummary();
+ if(state.batchFiles.length&&state.batchIndex<state.batchFiles.length-1){state.batchIndex++;status('setBatchStatus','পরের ছবি '+(state.batchIndex+1)+' / '+state.batchFiles.length+'। পরের শিক্ষার্থীর রোল লিখুন।','ok')}else if(state.batchFiles.length){state.batchFiles=[];state.batchIndex=0;$('setOmrCamera').value='';$('setOmrGallery').value='';status('setBatchStatus','সব ছবি স্ক্যান করা হয়েছে।','ok')}
+}
+function renderSetResults(){const el=$('setStudentResults');if(!el||!state.exam)return;let rows='';for(let r=1;r<=state.exam.count;r++){const x=state.results[resultKey(state.activeSet,r)];rows+=`<tr><td>${r}</td><td>${x?x.score+'/'+x.total:'<span class="absent">অনুপস্থিত</span>'}</td></tr>`}el.innerHTML=`<div style="overflow-x:auto"><table class="resulttable"><thead><tr><th>রোল</th><th>প্রাপ্ত নম্বর</th></tr></thead><tbody>${rows}</tbody></table></div>`}
+renderSummary=function(){
+ if(!state.exam){$('summary').innerHTML='<p class="muted">এখনও পরীক্ষা তৈরি হয়নি।</p>';return}
+ let rows='',done=0;for(let r=1;r<=state.exam.count;r++)for(const set of state.exam.sets){const x=state.results[resultKey(set,r)];if(x)done++;rows+=x?`<tr><td>${r}</td><td>${esc(set==='একক'?'একক':'সেট '+set)}</td><td>${x.score}</td><td>${x.total}</td></tr>`:`<tr><td>${r}</td><td>${esc(set==='একক'?'একক':'সেট '+set)}</td><td class="absent">অনুপস্থিত</td><td>—</td></tr>`}
+ $('summary').innerHTML=`<p><b>${esc(state.exam.name)}</b> · শ্রেণি ${esc(state.exam.className)} · ${esc(state.exam.subject)}</p><p class="muted">স্ক্যান হয়েছে ${done} / ${state.exam.count*state.exam.sets.length} জন-সেট</p><div style="overflow-x:auto"><table class="resulttable"><thead><tr><th>রোল</th><th>সেট</th><th>প্রাপ্ত নম্বর</th><th>মোট নম্বর</th></tr></thead><tbody>${rows}</tbody></table></div>`
+};
+rowsForExport=function(){if(!state.exam)throw Error('আগে পরীক্ষা তৈরি করুন।');const out=[];for(let r=1;r<=state.exam.count;r++)for(const set of state.exam.sets){const x=state.results[resultKey(set,r)];out.push(x?{রোল:r,সেট:set==='একক'?'একক':'সেট '+set,'প্রাপ্ত নম্বর':x.score,'মোট নম্বর':x.total,অবস্থা:'উপস্থিত'}:{রোল:r,সেট:set==='একক'?'একক':'সেট '+set,'প্রাপ্ত নম্বর':'অনুপস্থিত','মোট নম্বর':'—',অবস্থা:'অনুপস্থিত'})}return out};
+</script>
+
+
+
+
+<script>
+/* Teacher history + safe append-only student/result updates */
+(function(){
+ const HISTORY_KEY='sohoj_omr_teacher_exam_history_v1';
+ const getHistory=()=>{try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]')}catch(_){return []}};
+ const saveHistory=list=>{try{localStorage.setItem(HISTORY_KEY,JSON.stringify(list));return true}catch(e){console.warn('History save failed',e);return false}};
+ const makeId=()=>String(Date.now())+'-'+Math.random().toString(36).slice(2,8);
+ function persistCurrent(){
+  if(!state.exam)return;
+  if(!state.examId)state.examId=makeId();
+  const list=getHistory(),idx=list.findIndex(x=>x.id===state.examId);
+  const record={id:state.examId,exam:JSON.parse(JSON.stringify(state.exam)),keys:JSON.parse(JSON.stringify(state.keys||{})),results:JSON.parse(JSON.stringify(state.results||{})),activeSet:state.activeSet||state.exam.sets[0],newResultCount:Number(state.newResultCount||0),updatedAt:new Date().toISOString()};
+  if(idx>=0)list[idx]=record;else list.unshift(record);
+  if(!saveHistory(list))status('finalStatus','ব্রাউজারের স্টোরেজ পূর্ণ হওয়ায় ইতিহাস সংরক্ষণ করা যায়নি। পুরোনো কিছু ইতিহাস মুছে জায়গা তৈরি করুন।','err');
+  renderHistory();
+ }
+ function renderHistory(){
+  const box=$('examHistoryList');if(!box)return;const list=getHistory();
+  if(!list.length){box.innerHTML='<p class="help">এখনও কোনো পরীক্ষার ইতিহাস নেই। নতুন পরীক্ষা তৈরি করলে এখানে জমা হবে।</p>';return}
+  box.innerHTML=list.map(x=>`<div class="history-item"><strong>${esc(x.exam?.name||'নামহীন পরীক্ষা')}</strong><small>শ্রেণি ${esc(x.exam?.className||'—')} · ${esc(x.exam?.subject||'—')}<br>শেষ আপডেট: ${new Date(x.updatedAt||Date.now()).toLocaleString('bn-BD')}<br>সর্বশেষ রোল: ${Number(x.exam?.count||0)} · ফল: ${Object.keys(x.results||{}).length}</small><button type="button" data-open-exam="${esc(x.id)}">এই পরীক্ষা খুলুন</button></div>`).join('');
+ }
+ function openHistoryExam(id){
+  const rec=getHistory().find(x=>x.id===id);if(!rec)return;
+  if(state.exam)persistCurrent();
+  state.exam=JSON.parse(JSON.stringify(rec.exam));state.keys=JSON.parse(JSON.stringify(rec.keys||{}));state.results=JSON.parse(JSON.stringify(rec.results||{}));state.activeSet=rec.activeSet||state.exam.sets[0];state.examId=rec.id;state.newResultCount=Number(rec.newResultCount||0);state.pending=null;state.batchFiles=[];state.batchIndex=0;
+  renderSetUI();renderSummary();$('examStatus').classList.add('hidden');
+  closeDrawer();$('app').scrollIntoView({behavior:'smooth',block:'start'});
+  status('finalStatus','ইতিহাস থেকে “'+state.exam.name+'” পরীক্ষা খোলা হয়েছে। আগের ফলাফল অক্ষত আছে; নতুন শিক্ষার্থী স্ক্যান বা ফল যোগ করতে পারবেন।','ok');
+ }
+ function openDrawer(){ $('historyBackdrop').classList.remove('hidden');$('historyDrawer').classList.add('open');$('historyDrawer').setAttribute('aria-hidden','false');renderHistory(); }
+ function closeDrawer(){ $('historyBackdrop').classList.add('hidden');$('historyDrawer').classList.remove('open');$('historyDrawer').setAttribute('aria-hidden','true'); }
+ $('menuTrigger').addEventListener('click',openDrawer);$('closeHistory').addEventListener('click',closeDrawer);$('historyBackdrop').addEventListener('click',closeDrawer);
+ $('examHistoryList').addEventListener('click',e=>{const b=e.target.closest('[data-open-exam]');if(b)openHistoryExam(b.dataset.openExam)});
+ $('setPanel').addEventListener('click',e=>{if(e.target.closest('#setSaveKey'))persistCurrent()});
+ $('setTabs').addEventListener('click',()=>{if(state.exam){state.activeSet=state.activeSet||state.exam.sets[0];persistCurrent()}});
+ // Keep previous exam before creating another one, then archive the new one.
+ const originalStart=$('startExam').onclick;
+ $('startExam').onclick=function(){if(state.exam)persistCurrent();originalStart();if(state.exam){state.examId=makeId();state.newResultCount=0;persistCurrent();renderSummary()}};
+ // Increase only the maximum roll. Never rewrite or clear existing results.
+ $('extendStudents').addEventListener('click',()=>{
+  if(!state.exam){status('finalStatus','আগে একটি পরীক্ষা তৈরি করুন অথবা ইতিহাস থেকে খুলুন।','err');return}
+  const next=Number($('extendCount').value);
+  if(!Number.isInteger(next)||next<=state.exam.count||next>500){status('finalStatus','বর্তমান শেষ রোল '+state.exam.count+'-এর চেয়ে বড় এবং ৫০০-এর মধ্যে নতুন শেষ রোল দিন।','err');return}
+  const old=state.exam.count;state.exam.count=next;$('extendCount').value='';persistCurrent();renderSummary();renderSetResults();status('finalStatus','শিক্ষার্থীর রোল সীমা '+old+' থেকে '+next+' করা হয়েছে। আগের কোনো ফলাফল পরিবর্তন হয়নি। নতুন রোলগুলো স্ক্যান করলে ফল যোগ হবে।','ok');
+ });
+ // Count only genuinely new roll+set results; rescanning an existing student updates that record without inflating the notice.
+ const originalSaveScan=saveSetScan;
+ saveSetScan=function(){
+  if(!state.pending)return;const k=resultKey(state.pending.set,state.pending.roll),isNew=!Object.prototype.hasOwnProperty.call(state.results,k);
+  originalSaveScan();if(isNew)state.newResultCount=(Number(state.newResultCount)||0)+1;persistCurrent();renderSummary();
+ };
+ // Update the final-result notice and preserve history whenever the result view is refreshed.
+ const originalRenderSummary=renderSummary;
+ renderSummary=function(){originalRenderSummary();if(!state.exam)return;
+  const summary=$('summary');let notice=summary.querySelector('.new-results-notice');
+  const n=Number(state.newResultCount)||0;
+  if(n>0){if(!notice){notice=document.createElement('div');notice.className='new-results-notice';summary.prepend(notice)}notice.textContent='নতুন ('+n+') টি ফলাফল যোগ হয়েছে। আপডেটেড ফলাফল শিট পেতে PDF অথবা Excel আবার ডাউনলোড করুন।'}else if(notice)notice.remove();
+ };
+ function markDownloaded(){if(!state.exam)return;state.newResultCount=0;persistCurrent();renderSummary();}
+ const oldXlsx=$('downloadXlsx').onclick;$('downloadXlsx').onclick=function(){oldXlsx();if(!$('finalStatus').classList.contains('err'))markDownloaded()};
+ const oldPdf=$('downloadPdf').onclick;$('downloadPdf').onclick=function(){oldPdf();if(!$('finalStatus').classList.contains('err'))markDownloaded()};
+ // Autosave current active exam when the page is closed or refreshed.
+ window.addEventListener('beforeunload',persistCurrent);
+ renderHistory();
+})();
+</script>
+\n\n
+
+<script>
+/* Robust answer-key extraction and explicit field-fill verification */
+(function(){
+  function collectPairs(v,out){
+    if(v==null)return;
+    if(typeof v==='string'){
+      const re=/(?:প্রশ্ন\s*)?(\d{1,3})\s*[-.):=]\s*([ABCD])\b/gi;let m;
+      while((m=re.exec(v)))out.push({question:Number(m[1]),answer:m[2].toUpperCase()});
+      return;
+    }
+    if(Array.isArray(v)){v.forEach(x=>collectPairs(x,out));return;}
+    if(typeof v==='object'){
+      const q=v.question??v.question_number??v.questionNo??v.q??v.number??v.no;
+      const a=v.answer??v.correct_answer??v.correctOption??v.correct_option??v.option??v.key;
+      if(q!==undefined&&a!==undefined){const qm=String(q).match(/\d{1,3}/),am=String(a).trim().match(/(?:^|[^A-D])([ABCD])(?:$|[^A-D])/i);if(qm&&am)out.push({question:Number(qm[0]),answer:am[1].toUpperCase()});}
+      Object.keys(v).forEach(k=>{if(!['question','question_number','questionNo','q','number','no','answer','correct_answer','correctOption','correct_option','option','key'].includes(k))collectPairs(v[k],out)});
+    }
+  }
+  function parsePairs(obj){const out=[];collectPairs(obj,out);const m=new Map();out.forEach(x=>{if(Number.isInteger(x.question)&&x.question>0&&x.question<=300&&'ABCD'.includes(x.answer))m.set(x.question,x.answer)});return [...m].sort((a,b)=>a[0]-b[0]).map(([question,answer])=>({question,answer}));}
+  function install(){
+    const btn=$('setExtract');if(!btn)return;
+    btn.onclick=async()=>{
+      const fs=[...$('setKeyCamera').files,...$('setKeyGallery').files];
+      if(!fs.length){status('setKeyStatus','প্রথমে উত্তরমালার ফাইল দিন।','err');return;}
+      btn.disabled=true;
+      try{
+        status('setKeyStatus','AI উত্তর শনাক্ত করছে…');renderKeySourcePreview(fs);
+        const f=await filesToParts(fs);
+        const prompt='এই ছবির/ফাইলের সম্পূর্ণ MCQ উত্তরমালা পড়ো। সব দৃশ্যমান প্রশ্ন নম্বরের পাশে থাকা সঠিক অপশন A/B/C/D বের করো। দুই কলাম বা একাধিক অংশ থাকলে সবগুলো পড়বে। প্রতিটি প্রশ্ন আলাদা record হবে। নিশ্চিত না হলে বাদ দেবে। JSON: {"answers":[{"question":1,"answer":"A"}]}। answer শুধু A, B, C অথবা D হবে।';
+        const response=await gemini(prompt+(f.text?'\nফাইলের লেখা:\n'+f.text:''),f.parts);
+        const ans=parsePairs(response);if(!ans.length)throw Error('AI response থেকে প্রশ্ন নম্বর ও A/B/C/D উত্তর পাওয়া যায়নি। পুরো উত্তরমালার পরিষ্কার ছবি দিন।');
+        const existing=Math.max(1,Number($('setQuestionCount').value)||20),maxQ=Math.max(...ans.map(x=>x.question));
+        $('setQuestionCount').value=Math.max(existing,maxQ);buildSetKey();let applied=0;
+        ans.forEach(x=>{const el=$('setKeyFields').querySelector('select[data-q="'+x.question+'"]');if(el){el.value=x.answer;if(el.value===x.answer)applied++;}});
+        $('setKeyEditor').classList.remove('hidden');if(!applied)throw Error('AI উত্তর দিয়েছে, কিন্তু কোনো উত্তর ঘরে বসেনি। আবার চেষ্টা করুন।');
+        status('setKeyStatus',applied+' / '+$('setKeyFields').querySelectorAll('select').length+'টি প্রশ্নের উত্তর ঘরে বসানো হয়েছে। বাকি ঘরগুলো মূল শিট দেখে পূরণ করুন, তারপর সংরক্ষণ করুন।','ok');
+      }catch(e){status('setKeyStatus','সমস্যা: '+(e?.message||e),'err');}finally{btn.disabled=false;}
+    };
+  }
+  const oldBind=bindSetPanel;bindSetPanel=function(){oldBind();install();};install();
+})();
+</script>
+
+
+<script>
+/* Robust answer-key extraction and explicit field-fill verification */
+(function(){
+  function collectPairs(v,out){
+    if(v==null)return;
+    if(typeof v==='string'){const re=/(?:প্রশ্ন\s*)?(\d{1,3})\s*[-.):=]\s*([ABCD])\b/gi;let m;while((m=re.exec(v)))out.push({question:Number(m[1]),answer:m[2].toUpperCase()});return;}
+    if(Array.isArray(v)){v.forEach(x=>collectPairs(x,out));return;}
+    if(typeof v==='object'){
+      const q=v.question??v.question_number??v.questionNo??v.q??v.number??v.no;
+      const a=v.answer??v.correct_answer??v.correctOption??v.correct_option??v.option??v.key;
+      if(q!==undefined&&a!==undefined){const qm=String(q).match(/\d{1,3}/),am=String(a).trim().match(/(?:^|[^A-D])([ABCD])(?:$|[^A-D])/i);if(qm&&am)out.push({question:Number(qm[0]),answer:am[1].toUpperCase()});}
+      Object.keys(v).forEach(k=>{if(!['question','question_number','questionNo','q','number','no','answer','correct_answer','correctOption','correct_option','option','key'].includes(k))collectPairs(v[k],out)});
+    }
+  }
+  function parsePairs(obj){const out=[];collectPairs(obj,out);const m=new Map();out.forEach(x=>{if(Number.isInteger(x.question)&&x.question>0&&x.question<=300&&'ABCD'.includes(x.answer))m.set(x.question,x.answer)});return [...m].sort((a,b)=>a[0]-b[0]).map(([question,answer])=>({question,answer}));}
+  function install(){const btn=$('setExtract');if(!btn)return;btn.onclick=async()=>{
+    const fs=[...$('setKeyCamera').files,...$('setKeyGallery').files];if(!fs.length){status('setKeyStatus','প্রথমে উত্তরমালার ফাইল দিন।','err');return;}btn.disabled=true;
+    try{status('setKeyStatus','AI উত্তর শনাক্ত করছে…');renderKeySourcePreview(fs);const f=await filesToParts(fs);
+      const prompt='এই ছবির/ফাইলের সম্পূর্ণ MCQ উত্তরমালা পড়ো। সব দৃশ্যমান প্রশ্ন নম্বরের পাশে থাকা সঠিক অপশন A/B/C/D বের করো। দুই কলাম বা একাধিক অংশ থাকলে সবগুলো পড়বে। প্রতিটি প্রশ্ন আলাদা record হবে। নিশ্চিত না হলে বাদ দেবে। JSON: {"answers":[{"question":1,"answer":"A"}]}। answer শুধু A, B, C অথবা D হবে।';
+      const response=await gemini(prompt+(f.text?'\nফাইলের লেখা:\n'+f.text:''),f.parts);const ans=parsePairs(response);if(!ans.length)throw Error('AI response থেকে প্রশ্ন নম্বর ও A/B/C/D উত্তর পাওয়া যায়নি। পুরো উত্তরমালার পরিষ্কার ছবি দিন।');
+      const existing=Math.max(1,Number($('setQuestionCount').value)||20),maxQ=Math.max(...ans.map(x=>x.question));$('setQuestionCount').value=Math.max(existing,maxQ);buildSetKey();let applied=0;
+      ans.forEach(x=>{const el=$('setKeyFields').querySelector('select[data-q="'+x.question+'"]');if(el){el.value=x.answer;if(el.value===x.answer)applied++;}});
+      $('setKeyEditor').classList.remove('hidden');if(!applied)throw Error('AI উত্তর দিয়েছে, কিন্তু কোনো উত্তর ঘরে বসেনি। আবার চেষ্টা করুন।');status('setKeyStatus',applied+' / '+$('setKeyFields').querySelectorAll('select').length+'টি প্রশ্নের উত্তর ঘরে বসানো হয়েছে। বাকি ঘরগুলো মূল শিট দেখে পূরণ করুন, তারপর সংরক্ষণ করুন।','ok');
+    }catch(e){status('setKeyStatus','সমস্যা: '+(e?.message||e),'err');}finally{btn.disabled=false;}
+  };}
+  const oldBind=bindSetPanel;bindSetPanel=function(){oldBind();install();};install();
+})();
+</script>
+
+</body>
+</html>
