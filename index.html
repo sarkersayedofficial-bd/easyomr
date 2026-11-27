@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#14532d">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>সহজ OMR — শিক্ষকদের জন্য</title>
 <style>
 :root{--g:#176b45;--g2:#23a36a;--bg:#f7f9fc;--ink:#17231d;--muted:#718078;--line:#e8edf0;--red:#c62828;--shadow:0 12px 34px rgba(24,55,39,.075)}
@@ -173,7 +176,7 @@ input[type=radio],input[type=checkbox]{width:auto;min-height:0;accent-color:var(
     <div id="examHistoryList"><p class="help">এখনও কোনো পরীক্ষার ইতিহাস নেই।</p></div>
   </div>
 </aside>
-<div class="footer">সহজ OMR স্ক্যানার • AI-এর ফল শিক্ষক নিজে যাচাই করবেন</div>
+<div class="footer">সহজ OMR স্ক্যানার • AI-এর ফল শিক্ষক নিজে যাচাই করবেন <span id="appVer"></span></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
@@ -198,7 +201,15 @@ const state = {
   newResultCount: 0
 };
 
-const GEMINI_MODEL = 'gemini-3.8-flash';
+/* Free-tier models: lite first (faster), then full flash if needed */
+const GEMINI_MODELS = [
+  'gemini-3.5-flash-lite',
+  'gemini-3.1-flash-lite',
+  'gemini-3.8-flash',
+  'gemini-3.6-flash',
+  'gemini-2.5-flash-lite'
+];
+const APP_VERSION = '2026.11.27-c';
 const HISTORY_KEY = 'sohoj_omr_teacher_exam_history_v1';
 
 function apiKey() {
@@ -272,7 +283,7 @@ $('apiKeyManager').onclick = () => {
   $('firstApiKey').placeholder = apiKey() ? 'নতুন Gemini API Key লিখুন' : 'API Key এখানে লিখুন';
 };
 
-/* ---------- File helpers ---------- */
+/* ---------- File helpers (compressed for faster upload/scan) ---------- */
 function toBase64(file) {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
@@ -282,24 +293,58 @@ function toBase64(file) {
   });
 }
 
+/** Resize + JPEG compress so Gemini gets a smaller payload (faster). */
+function compressImageFile(file, maxSide = 1280, quality = 0.72) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let w = img.naturalWidth || img.width;
+      let h = img.naturalHeight || img.height;
+      if (w < 1 || h < 1) {
+        reject(Error('ছবি পড়া যায়নি।'));
+        return;
+      }
+      const scale = Math.min(1, maxSide / Math.max(w, h));
+      w = Math.round(w * scale);
+      h = Math.round(h * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', quality);
+      resolve(dataUrl.split(',')[1]);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(Error('ছবি লোড হয়নি।'));
+    };
+    img.src = url;
+  });
+}
+
 async function fileToParts(file) {
   const ext = file.name.toLowerCase().split('.').pop();
   if (file.type.startsWith('image/')) {
-    return { parts: [{ inline_data: { mime_type: file.type, data: await toBase64(file) } }], text: '' };
+    const data = await compressImageFile(file);
+    return { parts: [{ inline_data: { mime_type: 'image/jpeg', data } }], text: '' };
   }
   if (ext === 'pdf' || file.type === 'application/pdf') {
     if (!window.pdfjsLib) throw Error('PDF পড়ার লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।');
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
     const parts = [];
-    for (let p = 1; p <= Math.min(pdf.numPages, 12); p++) {
+    // Fewer pages + lower scale = faster
+    for (let p = 1; p <= Math.min(pdf.numPages, 8); p++) {
       const page = await pdf.getPage(p);
-      const vp = page.getViewport({ scale: 1.5 });
+      const vp = page.getViewport({ scale: 1.15 });
       const canvas = document.createElement('canvas');
       canvas.width = vp.width;
       canvas.height = vp.height;
       await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
-      parts.push({ inline_data: { mime_type: 'image/jpeg', data: canvas.toDataURL('image/jpeg', 0.85).split(',')[1] } });
+      parts.push({ inline_data: { mime_type: 'image/jpeg', data: canvas.toDataURL('image/jpeg', 0.72).split(',')[1] } });
     }
     return { parts, text: '' };
   }
@@ -345,7 +390,6 @@ async function gemini(prompt, parts = []) {
     required: ['answers']
   };
 
-  // Standard generateContent parts: text + inline_data images
   const requestParts = [{ text: prompt }];
   for (const part of parts) {
     if (part.inline_data) {
@@ -368,52 +412,63 @@ async function gemini(prompt, parts = []) {
     }
   };
 
-  const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + encodeURIComponent(key);
+  let lastError = null;
 
-  let res;
-  try {
-    res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-  } catch (fetchError) {
-    throw Error('Gemini API-তে সরাসরি সংযোগ হয়নি (Failed to fetch)। সাইটটি HTTPS বা localhost থেকে খুলুন, ইন্টারনেট/ব্রাউজারের নেটওয়ার্ক ব্লক পরীক্ষা করুন।');
+  for (const model of GEMINI_MODELS) {
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(key);
+    let res;
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+    } catch (fetchError) {
+      throw Error('Gemini API-তে সরাসরি সংযোগ হয়নি (Failed to fetch)। সাইটটি HTTPS বা localhost থেকে খুলুন, ইন্টারনেট/ব্রাউজারের নেটওয়ার্ক ব্লক পরীক্ষা করুন।');
+    }
+
+    let data = {};
+    try { data = await res.json(); } catch (_) {}
+
+    if (!res.ok) {
+      const msg = data.error?.message || data.message || ('HTTP ' + res.status);
+      // Retry next free model on overload / not found / unavailable
+      if (res.status === 503 || res.status === 404 || /high demand|no longer available|not found|unavailable/i.test(msg)) {
+        lastError = model + ' → ' + msg;
+        continue;
+      }
+      if (res.status === 400) throw Error('Gemini request গ্রহণ করেনি: ' + msg);
+      if (res.status === 401 || res.status === 403) throw Error('API Key সঠিক নয়, অথবা এই মডেল/API ব্যবহারের অনুমতি নেই: ' + msg);
+      if (res.status === 429) throw Error('এই API Key-এর quota/rate limit শেষ বা সাময়িকভাবে সীমিত: ' + msg);
+      throw Error('Gemini API সমস্যা (' + res.status + '): ' + msg);
+    }
+
+    const txt = (data.candidates || [])
+      .flatMap(c => (c.content && c.content.parts) || [])
+      .filter(p => p.text)
+      .map(p => p.text)
+      .join('') || data.text || '';
+
+    if (!txt) {
+      const block = data.promptFeedback?.blockReason || data.candidates?.[0]?.finishReason || 'unknown';
+      lastError = model + ' → empty response (' + block + ')';
+      continue;
+    }
+
+    try {
+      return JSON.parse(txt.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim());
+    } catch (_) {
+      const pairs = [];
+      const re = /(?:প্রশ্ন\s*)?(\d{1,3})\s*[-.):=ঃ]\s*([ABCD])\b/gi;
+      let m;
+      while ((m = re.exec(txt))) pairs.push({ question: Number(m[1]), answer: m[2].toUpperCase() });
+      if (pairs.length) return { answers: pairs };
+      lastError = model + ' → JSON parse failed';
+      continue;
+    }
   }
 
-  let data = {};
-  try { data = await res.json(); } catch (_) {}
-
-  if (!res.ok) {
-    const msg = data.error?.message || data.message || ('HTTP ' + res.status);
-    if (res.status === 400) throw Error('Gemini request গ্রহণ করেনি: ' + msg);
-    if (res.status === 401 || res.status === 403) throw Error('API Key সঠিক নয়, অথবা এই মডেল/API ব্যবহারের অনুমতি নেই: ' + msg);
-    if (res.status === 429) throw Error('এই API Key-এর quota/rate limit শেষ বা সাময়িকভাবে সীমিত: ' + msg);
-    throw Error('Gemini API সমস্যা (' + res.status + '): ' + msg);
-  }
-
-  // Standard response: candidates[0].content.parts[].text
-  const txt = (data.candidates || [])
-    .flatMap(c => (c.content && c.content.parts) || [])
-    .filter(p => p.text)
-    .map(p => p.text)
-    .join('') || data.text || '';
-
-  if (!txt) {
-    const block = data.promptFeedback?.blockReason || data.candidates?.[0]?.finishReason || 'unknown';
-    throw Error('AI কোনো উত্তর দেয়নি। finishReason/block: ' + block);
-  }
-
-  try {
-    return JSON.parse(txt.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim());
-  } catch (_) {
-    const pairs = [];
-    const re = /(?:প্রশ্ন\s*)?(\d{1,3})\s*[-.):=ঃ]\s*([ABCD])\b/gi;
-    let m;
-    while ((m = re.exec(txt))) pairs.push({ question: Number(m[1]), answer: m[2].toUpperCase() });
-    if (pairs.length) return { answers: pairs };
-    throw Error('Gemini উত্তর দিয়েছে, কিন্তু JSON হিসেবে পড়া যায়নি।');
-  }
+  throw Error('সব ফ্রি মডেল ব্যস্ত/অনুপলব্ধ। একটু পর আবার চেষ্টা করুন।\n' + (lastError || ''));
 }
 
 /* ---------- Answer-key parsing helpers ---------- */
@@ -434,7 +489,8 @@ function pairsFrom(v, out = []) {
     const a = v.answer ?? v.correct_answer ?? v.correctOption ?? v.correct_option ?? v.option ?? v.key;
     if (q !== undefined && a !== undefined) {
       const qm = String(q).match(/\d{1,3}/);
-      const am = String(a).trim().toUpperCase().match(/^[^A-D]*([ABCD])(?:\s|$|[).,:-])/);
+      const aStr = String(a).trim().toUpperCase();
+      const am = aStr.match(/^([ABCD])$/) || aStr.match(/^[^A-D]*([ABCD])(?:\s|$|[).,:\-])/);
       if (qm && am) out.push({ question: +qm[0], answer: am[1] });
     }
     Object.entries(v).forEach(([k, x]) => {
@@ -709,7 +765,9 @@ function buildSetKey() {
     `<div class="keyitem"><strong>প্রশ্ন ${i + 1}</strong>
       <select data-q="${i + 1}">
         <option value="">উত্তর বাছুন</option>
-        ${['A', 'B', 'C', 'D'].map(o => `<option ${old[i] === o ? 'selected' : ''}>${o}</option>`).join('')}
+        ${['A', 'B', 'C', 'D'].map(o =>
+          `<option value="${o}"${old[i] === o ? ' selected' : ''}>${o}</option>`
+        ).join('')}
       </select>
     </div>`
   ).join('');
@@ -810,12 +868,16 @@ function bindSetPanel() {
       if (!map.size) throw Error('AI response থেকে প্রশ্ন নম্বরসহ A/B/C/D উত্তর পাওয়া যায়নি।');
       const maxQ = Math.max(...map.keys());
       $('setQuestionCount').value = Math.max(Number($('setQuestionCount').value) || 20, maxQ);
+      // Clear saved key so buildSetKey does not overwrite AI values with old blanks
+      state.keys[set] = null;
       buildSetKey();
       let applied = 0;
       for (const [q, a] of map) {
         const el = $('setKeyFields').querySelector('select[data-q="' + q + '"]');
         if (el) {
           el.value = a;
+          // Force selected attribute for stubborn mobile browsers
+          [...el.options].forEach(opt => { opt.selected = (opt.value === a); });
           if (el.value === a) applied++;
         }
       }
@@ -1242,6 +1304,8 @@ showApp();
 renderSummary();
 renderHistory();
 translateInterface();
+const verEl = $('appVer');
+if (verEl) verEl.textContent = '· v' + APP_VERSION;
 </script>
 </body>
 </html>
